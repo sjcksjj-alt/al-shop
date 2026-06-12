@@ -5,188 +5,99 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Entry Register</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
-
-  :root {
-    --bg: #f4f6fb;
-    --surface: #ffffff;
-    --card: #ffffff;
-    --border: #dde2f0;
-    --border2: #c8cfe0;
-    --accent: #4f7cff;
-    --accent2: #00a884;
-    --warn: #e03e3e;
-    --text: #1a1d27;
-    --muted: #7a8099;
-    --faint: #f0f2f8;
-    --h-series: #5b52e0;
-    --a-series: #00a884;
-    --p15-series: #d4870a;
-    --zd30-series: #e03e3e;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
-
-  /* HEADER */
-  .header { background: #fff; border-bottom: 1.5px solid var(--border); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-  .header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.03em; color: var(--text); }
-  .header h1 span { color: var(--accent); }
-  .header-date { font-size: 0.8rem; color: var(--muted); }
-
-  .layout { display: flex; flex: 1; overflow: hidden; }
-
-  /* LEFT PANEL */
-  .left-panel { width: 256px; min-width: 256px; background: #fff; border-right: 1.5px solid var(--border); padding: 20px 14px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
-
-  /* CALENDAR */
-  .calendar-widget { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .cal-header { background: var(--accent); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
-  .cal-header .cal-title { font-weight: 700; font-size: 0.88rem; color: #fff; }
-  .cal-nav { background: rgba(255,255,255,0.22); border: none; color: #fff; width: 26px; height: 26px; border-radius: 5px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
-  .cal-nav:hover { background: rgba(255,255,255,0.38); }
-  .cal-body { padding: 10px; background: #fff; }
-  .cal-dow { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
-  .cal-dow span { text-align: center; font-size: 0.63rem; color: var(--muted); font-weight: 700; padding: 2px 0; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
-  .cal-day { text-align: center; padding: 5px 2px; font-size: 0.75rem; border-radius: 5px; cursor: pointer; transition: background 0.13s; color: var(--text); position: relative; }
-  .cal-day:hover { background: var(--faint); }
-  .cal-day.empty { cursor: default; }
-  .cal-day.today { background: var(--accent); color: #fff; font-weight: 700; }
-  .cal-day.selected { background: var(--accent2); color: #fff; font-weight: 700; }
-  .cal-day.has-data::after { content:''; position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:4px; height:4px; background:var(--accent2); border-radius:50%; }
-  .cal-day.today.has-data::after, .cal-day.selected.has-data::after { background:#fff; }
-
-  .selected-date-display { background: var(--faint); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
-  .sel-label { font-size: 0.63rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; }
-  .sel-date { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--accent2); margin-top: 4px; }
-
-  /* MONTH SUMMARY */
-  .month-summary { border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; background: #fff; }
-  .month-summary h3 { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 10px; }
-  .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 0.75rem; }
-  .summary-row:last-child { border-bottom: none; }
-  .summary-row .stype { display: flex; align-items: center; gap: 6px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .summary-row .svals { display: flex; gap: 10px; }
-  .svals span { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; }
-  .rec { color: var(--accent2); }
-  .dis { color: var(--warn); }
-
-  /* MAIN */
-  .main { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 22px; background: var(--bg); }
-
-  .section-title { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-  .section-title::after { content:''; flex:1; height:1.5px; background:var(--border); }
-
-  /* SERIES TABS */
-  .series-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-  .series-tab { padding: 6px 18px; border-radius: 6px; border: 1.5px solid var(--border); background: #fff; color: var(--muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.13s; }
-  .series-tab:hover { border-color: var(--accent); color: var(--text); }
-  .series-tab.active { color: #fff; border-color: transparent; }
-  .series-tab[data-series="H-Series"].active { background: var(--h-series); }
-  .series-tab[data-series="A-Series"].active { background: var(--a-series); }
-  .series-tab[data-series="P15-Series"].active { background: var(--p15-series); }
-  .series-tab[data-series="ZD30-Series"].active { background: var(--zd30-series); }
-
-  /* ENTRY GRID */
-  .entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .entry-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-  .entry-card-header { padding: 12px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1.5px solid var(--border); }
-  .entry-card-header.received { background: #e8faf5; border-bottom-color: #b2e8d8; }
-  .entry-card-header.dismantled { background: #fdeaea; border-bottom-color: #f5c0c0; }
-  .entry-card-header h2 { font-size: 0.88rem; font-weight: 700; letter-spacing: 0.04em; }
-  .entry-card-header.received h2 { color: var(--accent2); }
-  .entry-card-header.dismantled h2 { color: var(--warn); }
-  .entry-card-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-
-  /* RECEIVED — simple count input */
-  .count-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
-  .count-input {
-    background: #fff;
-    border: 1.5px solid var(--border2);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--accent2);
-    width: 100%;
-    outline: none;
-    text-align: center;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    -moz-appearance: textfield;
-  }
-  .count-input::-webkit-inner-spin-button,
-  .count-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .count-input:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(0,168,132,0.12); }
-  .count-hint { font-size: 0.68rem; color: var(--muted); text-align: center; }
-
-  /* DISMANTLED — tag input */
-  .tag-box {
-    background: #fff;
-    border: 1.5px solid var(--border2);
-    border-radius: 8px;
-    min-height: 88px;
-    padding: 8px 10px;
-    cursor: text;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    align-content: flex-start;
-  }
-  .tag-box:focus-within { border-color: var(--warn); box-shadow: 0 0 0 3px rgba(224,62,62,0.1); }
-  .armp-tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: #fff3f3; color: var(--warn);
-    border: 1.5px solid #f5c0c0;
-    border-radius: 5px; padding: 3px 8px;
-    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700;
-    white-space: nowrap;
-  }
-  .armp-tag .tag-del { cursor: pointer; color: #e8a0a0; font-size: 0.9rem; line-height: 1; padding: 0 1px; transition: color 0.1s; }
-  .armp-tag .tag-del:hover { color: var(--warn); }
-  .tag-input { border: none; outline: none; background: transparent; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text); min-width: 120px; flex: 1; padding: 3px 2px; }
-  .tag-input::placeholder { color: #b0b7cc; font-family: 'Inter', sans-serif; font-size: 0.75rem; }
-  .tag-hint { font-size: 0.67rem; color: var(--muted); margin-top: -4px; }
-
-  /* TOTAL BAR */
-  .entry-total { background: var(--faint); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; display: flex; justify-content: space-between; align-items: center; }
-  .entry-total .t-label { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
-  .entry-total .total-val { font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; font-weight: 700; }
-  .received .entry-total .total-val { color: var(--accent2); }
-  .dismantled .entry-total .total-val { color: var(--warn); }
-
-  /* SAVE BAR */
-  .save-bar { display: flex; gap: 12px; align-items: center; }
-  .btn-save { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 10px 30px; font-size: 0.88rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: opacity 0.15s; box-shadow: 0 2px 8px rgba(79,124,255,0.18); }
-  .btn-save:hover { opacity: 0.88; }
-  .btn-clear { background: #fff; color: var(--muted); border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 20px; font-size: 0.85rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: border-color 0.15s, color 0.15s; }
-  .btn-clear:hover { border-color: var(--warn); color: var(--warn); }
-  .save-msg { font-size: 0.78rem; color: var(--accent2); font-weight: 600; opacity: 0; transition: opacity 0.3s; }
-  .save-msg.show { opacity: 1; }
-
-  /* CUMULATIVE TABLE */
-  .cum-table-wrap { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-  .cum-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-  .cum-table th { background: var(--faint); color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.63rem; padding: 10px 14px; text-align: left; border-bottom: 1.5px solid var(--border); }
-  .cum-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
-  .cum-table tr:last-child td { border-bottom: none; }
-  .cum-table tr:hover td { background: #fafbff; }
-  .cum-table td.rec { color: var(--accent2); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-  .cum-table td.dis { color: var(--warn); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-  .cum-table td.label { font-family: 'Inter', sans-serif; font-weight: 600; }
-  .cum-table tfoot td { font-weight: 700; background: var(--faint); border-top: 2px solid var(--border); }
-  .badge { display: inline-block; padding: 2px 9px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; font-family: 'Inter', sans-serif; }
-  .badge-h { background: #ebe9ff; color: var(--h-series); }
-  .badge-a { background: #d8f5ed; color: var(--a-series); }
-  .badge-p15 { background: #fef0d6; color: var(--p15-series); }
-  .badge-zd30 { background: #fde8e8; color: var(--zd30-series); }
-  .armp-chip { display: inline-block; background: #fde8e8; color: var(--warn); border: 1px solid #f5c0c0; border-radius: 4px; padding: 2px 7px; margin: 2px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700; }
-
-  @media (max-width: 900px) { .entry-grid { grid-template-columns: 1fr; } .left-panel { width: 220px; min-width: 220px; } }
-  @media (max-width: 680px) { .layout { flex-direction: column; } .left-panel { width: 100%; border-right: none; border-bottom: 1.5px solid var(--border); } .main { padding: 16px; } }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#fff;--surface:#fff;--border:#dde2f0;--border2:#c8cfe0;--accent:#4f7cff;--accent2:#00a884;--warn:#e03e3e;--text:#1a1d27;--muted:#7a8099;--faint:#f0f2f8;--h-series:#5b52e0;--a-series:#00a884;--p15-series:#d4870a;--zd30-series:#e03e3e;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:15px;}
+.header{background:#fff;border-bottom:1.5px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+.header h1{font-size:1.2rem;font-weight:700;color:var(--text);}
+.header h1 span{color:var(--accent);}
+.header-date{font-size:0.9rem;color:var(--muted);}
+.layout{display:flex;flex:1;background:#fff;}
+.left-panel{width:260px;min-width:260px;background:#fff;border-right:1.5px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
+.calendar-widget{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;}
+.cal-header{background:var(--accent);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.cal-title{font-weight:700;font-size:0.95rem;color:#fff;}
+.cal-nav{background:rgba(255,255,255,0.22);border:none;color:#fff;width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;}
+.cal-nav:hover{background:rgba(255,255,255,0.38);}
+.cal-body{padding:10px;background:#fff;}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
+.cal-dow span{text-align:center;font-size:0.7rem;color:var(--muted);font-weight:700;padding:2px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-day{text-align:center;padding:6px 2px;font-size:0.82rem;border-radius:5px;cursor:pointer;transition:background 0.13s;color:var(--text);position:relative;}
+.cal-day:hover{background:var(--faint);}
+.cal-day.empty{cursor:default;}
+.cal-day.today{background:var(--accent);color:#fff;font-weight:700;}
+.cal-day.selected{background:var(--accent2);color:#fff;font-weight:700;}
+.cal-day.has-data::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:var(--accent2);border-radius:50%;}
+.cal-day.today.has-data::after,.cal-day.selected.has-data::after{background:#fff;}
+.selected-date-display{background:var(--faint);border:1.5px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.sel-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;}
+.sel-date{font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:700;color:var(--accent2);margin-top:4px;}
+.month-summary{border:1.5px solid var(--border);border-radius:10px;padding:14px;background:#fff;}
+.month-summary h3{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:10px;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.82rem;}
+.summary-row:last-child{border-bottom:none;}
+.stype{display:flex;align-items:center;gap:6px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.svals{display:flex;gap:14px;}
+.svals span{font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;}
+.rec{color:var(--accent2);}
+.dis{color:var(--warn);}
+.main{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:22px;background:#fff;}
+.section-title{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;font-weight:600;}
+.section-title::after{content:'';flex:1;height:1.5px;background:var(--border);}
+.series-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+.series-tab{padding:8px 20px;border-radius:6px;border:1.5px solid var(--border);background:#fff;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.13s;}
+.series-tab:hover{border-color:var(--accent);color:var(--text);}
+.series-tab.active{color:#fff;border-color:transparent;}
+.series-tab[data-series="H-Series"].active{background:var(--h-series);}
+.series-tab[data-series="A-Series"].active{background:var(--a-series);}
+.series-tab[data-series="P15-Series"].active{background:var(--p15-series);}
+.series-tab[data-series="ZD30-Series"].active{background:var(--zd30-series);}
+.entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.entry-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.entry-card-header{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--border);}
+.entry-card-header.received{background:#e8faf5;border-bottom-color:#b2e8d8;}
+.entry-card-header.dismantled{background:#fdeaea;border-bottom-color:#f5c0c0;}
+.entry-card-header h2{font-size:0.95rem;font-weight:700;letter-spacing:0.04em;}
+.entry-card-header.received h2{color:var(--accent2);}
+.entry-card-header.dismantled h2{color:var(--warn);}
+.entry-card-body{padding:20px;display:flex;flex-direction:column;gap:14px;}
+.count-label{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;}
+.count-input{background:#fff;border:1.5px solid var(--border2);border-radius:8px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent2);width:100%;outline:none;text-align:center;transition:border-color 0.15s,box-shadow 0.15s;-moz-appearance:textfield;}
+.count-input.dis-input{color:var(--warn);}
+.count-input::-webkit-inner-spin-button,.count-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.count-input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(0,168,132,0.12);}
+.count-input.dis-input:focus{border-color:var(--warn);box-shadow:0 0 0 3px rgba(224,62,62,0.1);}
+.count-hint{font-size:0.75rem;color:var(--muted);text-align:center;}
+.entry-total{background:var(--faint);border:1px solid var(--border);border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;}
+.entry-total .t-label{font-size:0.8rem;color:var(--muted);font-weight:500;}
+.entry-total .total-val{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;}
+.save-bar{display:flex;gap:12px;align-items:center;}
+.btn-save{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 32px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
+.btn-save:hover{opacity:0.88;}
+.btn-clear{background:#fff;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;padding:11px 22px;font-size:0.92rem;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color 0.15s,color 0.15s;}
+.btn-clear:hover{border-color:var(--warn);color:var(--warn);}
+.save-msg{font-size:0.85rem;color:var(--accent2);font-weight:600;opacity:0;transition:opacity 0.3s;}
+.save-msg.show{opacity:1;}
+.cum-table-wrap{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.cum-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+.cum-table th{background:var(--faint);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-size:0.7rem;padding:11px 14px;text-align:left;border-bottom:1.5px solid var(--border);}
+.cum-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+.cum-table tr:last-child td{border-bottom:none;}
+.cum-table tr:hover td{background:#fafbff;}
+.cum-table td.rec{color:var(--accent2);font-family:'JetBrains Mono',monospace;font-weight:700;}
+.cum-table td.dis{color:var(--warn);font-family:'JetBrains Mono',monospace;font-weight:700;}
+.cum-table td.label{font-family:'Inter',sans-serif;font-weight:600;}
+.cum-table tfoot td{font-weight:700;background:var(--faint);border-top:2px solid var(--border);}
+.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:0.72rem;font-weight:700;}
+.badge-h{background:#ebe9ff;color:var(--h-series);}
+.badge-a{background:#d8f5ed;color:var(--a-series);}
+.badge-p15{background:#fef0d6;color:var(--p15-series);}
+.badge-zd30{background:#fde8e8;color:var(--zd30-series);}
+@media(max-width:900px){.entry-grid{grid-template-columns:1fr;}.left-panel{width:220px;min-width:220px;}}
+@media(max-width:680px){.layout{flex-direction:column;}.left-panel{width:100%;border-right:none;border-bottom:1.5px solid var(--border);}.main{padding:16px;}}
 </style>
 </head>
 <body>
@@ -198,7 +109,6 @@
 
 <div class="layout">
 
-  <!-- LEFT -->
   <div class="left-panel">
     <div class="calendar-widget">
       <div class="cal-header">
@@ -211,29 +121,24 @@
         <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
-
     <div class="selected-date-display">
       <div class="sel-label">Selected Date</div>
       <div class="sel-date" id="selDateDisplay">—</div>
     </div>
-
     <div class="month-summary">
       <h3>Month Cumulative</h3>
-      <div class="summary-row" style="font-size:0.62rem;color:var(--muted);padding-bottom:6px;">
-        <span>Series</span>
-        <div class="svals"><span class="rec">Rec</span><span class="dis">Dis</span></div>
+      <div class="summary-row" style="font-size:0.68rem;color:var(--muted);padding-bottom:6px;">
+        <span>Series</span><div class="svals"><span class="rec">Rec</span><span class="dis">Dis</span></div>
       </div>
       <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--h-series)"></span>H-Series</span><div class="svals"><span class="rec" id="cum-h-rec">0</span><span class="dis" id="cum-h-dis">0</span></div></div>
       <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--a-series)"></span>A-Series</span><div class="svals"><span class="rec" id="cum-a-rec">0</span><span class="dis" id="cum-a-dis">0</span></div></div>
       <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--p15-series)"></span>P15-Series</span><div class="svals"><span class="rec" id="cum-p15-rec">0</span><span class="dis" id="cum-p15-dis">0</span></div></div>
       <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--zd30-series)"></span>ZD30-Series</span><div class="svals"><span class="rec" id="cum-zd30-rec">0</span><span class="dis" id="cum-zd30-dis">0</span></div></div>
-      <div class="summary-row" style="padding-top:8px;"><span style="font-weight:700;font-size:0.78rem;">TOTAL</span><div class="svals"><span class="rec" style="font-weight:700;" id="cum-total-rec">0</span><span class="dis" style="font-weight:700;" id="cum-total-dis">0</span></div></div>
+      <div class="summary-row" style="padding-top:8px;"><span style="font-weight:700;font-size:0.85rem;">TOTAL</span><div class="svals"><span class="rec" style="font-weight:700;" id="cum-total-rec">0</span><span class="dis" style="font-weight:700;" id="cum-total-dis">0</span></div></div>
     </div>
   </div>
 
-  <!-- MAIN -->
   <div class="main">
-
     <div>
       <div class="section-title">Series Type</div>
       <div class="series-tabs" id="seriesTabs">
@@ -248,37 +153,34 @@
       <div class="section-title">Daily Entry — <span id="entryLabel" style="color:var(--accent);text-transform:none;letter-spacing:0;">H-Series</span></div>
       <div class="entry-grid">
 
-        <!-- RECEIVED: count only -->
-        <div class="entry-card" id="recCard">
+        <div class="entry-card">
           <div class="entry-card-header received">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M4 7l4 4 4-4" stroke="#00a884" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="#00a884" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M4 7l4 4 4-4" stroke="#00a884" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="#00a884" stroke-width="1.8" stroke-linecap="round"/></svg>
             <h2>RECEIVED</h2>
           </div>
-          <div class="entry-card-body received">
+          <div class="entry-card-body">
             <div class="count-label">Enter Count</div>
-            <input class="count-input" id="rec-count" type="number" min="0" placeholder="0" oninput="updateRecTotal()">
-            <div class="count-hint">Enter the total number of items received</div>
+            <input class="count-input" id="rec-count" type="number" min="0" placeholder="0" oninput="updateTotals()">
+            <div class="count-hint">Total number of items received</div>
             <div class="entry-total">
               <span class="t-label">Total Received</span>
-              <span class="total-val" id="rec-total">0</span>
+              <span class="total-val rec" id="rec-total">0</span>
             </div>
           </div>
         </div>
 
-        <!-- DISMANTLED: ARMP tag input -->
-        <div class="entry-card" id="disCard">
+        <div class="entry-card">
           <div class="entry-card-header dismantled">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#e03e3e" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#e03e3e" stroke-width="1.8" stroke-linecap="round"/></svg>
             <h2>DISMANTLED</h2>
           </div>
-          <div class="entry-card-body dismantled">
-            <div class="tag-box" id="dis-tagbox" onclick="document.getElementById('dis-input').focus()">
-              <input class="tag-input" id="dis-input" placeholder="Type ARMP number, press Space or Enter…" autocomplete="off" spellcheck="false">
-            </div>
-            <div class="tag-hint">Space / Enter / Comma — add &nbsp;·&nbsp; Backspace — remove last</div>
+          <div class="entry-card-body">
+            <div class="count-label">Enter Count</div>
+            <input class="count-input dis-input" id="dis-count" type="number" min="0" placeholder="0" oninput="updateTotals()">
+            <div class="count-hint">Total number of items dismantled</div>
             <div class="entry-total">
-              <span class="t-label">Total Dismantled (count)</span>
-              <span class="total-val" id="dis-total">0</span>
+              <span class="t-label">Total Dismantled</span>
+              <span class="total-val dis" id="dis-total">0</span>
             </div>
           </div>
         </div>
@@ -301,61 +203,57 @@
               <th>Date</th>
               <th>Series</th>
               <th class="rec">Received</th>
-              <th>ARMP Numbers (Dismantled)</th>
               <th class="dis">Dismantled</th>
             </tr>
           </thead>
           <tbody id="cumTableBody">
-            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>
+            <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>
           </tbody>
           <tfoot id="cumTableFoot"></tfoot>
         </table>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-const SERIES = ['H-Series','A-Series','P15-Series','ZD30-Series'];
-const BADGE_CLASS = {'H-Series':'badge-h','A-Series':'badge-a','P15-Series':'badge-p15','ZD30-Series':'badge-zd30'};
-const CUM_ID = {'H-Series':'h','A-Series':'a','P15-Series':'p15','ZD30-Series':'zd30'};
+const SERIES=['H-Series','A-Series','P15-Series','ZD30-Series'];
+const BADGE_CLASS={'H-Series':'badge-h','A-Series':'badge-a','P15-Series':'badge-p15','ZD30-Series':'badge-zd30'};
+const CUM_ID={'H-Series':'h','A-Series':'a','P15-Series':'p15','ZD30-Series':'zd30'};
+let currentSeries='H-Series';
+let calYear,calMonth,selectedDate;
+let data=JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
+const today=new Date();
+calYear=today.getFullYear();
+calMonth=today.getMonth();
+selectedDate=toDateStr(today);
 
-let currentSeries = 'H-Series';
-let calYear, calMonth, selectedDate;
-let data = JSON.parse(localStorage.getItem('dailyRegData') || '{}');
-let disTags = [];
-
-const today = new Date();
-calYear = today.getFullYear();
-calMonth = today.getMonth();
-selectedDate = toDateStr(today);
-
-function toDateStr(d) {
+function toDateStr(d){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-function formatDisplay(ds) {
-  const [y,m,d] = ds.split('-');
-  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function formatDisplay(ds){
+  const[y,m,d]=ds.split('-');
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${d} ${mo[+m-1]} ${y}`;
 }
-document.getElementById('headerDate').textContent = today.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-// ── CALENDAR ──
-function renderCalendar() {
-  const mo = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calTitle').textContent = `${mo[calMonth]} ${calYear}`;
-  document.getElementById('selDateDisplay').textContent = formatDisplay(selectedDate);
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-  const first = new Date(calYear,calMonth,1).getDay();
-  const days  = new Date(calYear,calMonth+1,0).getDate();
-  const todayStr = toDateStr(today);
+document.getElementById('headerDate').textContent=today.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+function renderCalendar(){
+  const mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent=`${mo[calMonth]} ${calYear}`;
+  document.getElementById('selDateDisplay').textContent=formatDisplay(selectedDate);
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML='';
+  const first=new Date(calYear,calMonth,1).getDay();
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  const todayStr=toDateStr(today);
   for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
   for(let d=1;d<=days;d++){
     const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const el=document.createElement('div');
-    el.className='cal-day';el.textContent=d;
+    el.className='cal-day';
+    el.textContent=d;
     if(ds===todayStr)el.classList.add('today');
     if(ds===selectedDate)el.classList.add('selected');
     if(data[ds]&&Object.keys(data[ds]).length)el.classList.add('has-data');
@@ -364,10 +262,10 @@ function renderCalendar() {
   }
   updateMonthlyCumulative();
 }
+
 document.getElementById('calPrev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();renderCumTable();};
 document.getElementById('calNext').onclick=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();renderCumTable();};
 
-// ── SERIES TABS ──
 document.getElementById('seriesTabs').addEventListener('click',e=>{
   const tab=e.target.closest('.series-tab');
   if(!tab)return;
@@ -379,91 +277,56 @@ document.getElementById('seriesTabs').addEventListener('click',e=>{
   loadFormForDate();
 });
 
-// ── RECEIVED COUNT ──
-function updateRecTotal(){
-  const v=parseInt(document.getElementById('rec-count').value)||0;
-  document.getElementById('rec-total').textContent=v;
+function updateTotals(){
+  const rv=parseInt(document.getElementById('rec-count').value)||0;
+  const dv=parseInt(document.getElementById('dis-count').value)||0;
+  document.getElementById('rec-total').textContent=rv;
+  document.getElementById('dis-total').textContent=dv;
 }
 
-// ── DISMANTLED TAG INPUT ──
-function setupTagInput(){
-  const input=document.getElementById('dis-input');
-  input.addEventListener('keydown',e=>{
-    const val=input.value.trim().toUpperCase();
-    if((e.key===' '||e.key==='Enter'||e.key===',')&&val){
-      e.preventDefault();addTag(val);input.value='';
-    }
-    if(e.key==='Backspace'&&input.value===''&&disTags.length){
-      disTags.splice(disTags.length-1,1);renderTags();
-    }
-  });
-  input.addEventListener('paste',e=>{
-    e.preventDefault();
-    const pasted=(e.clipboardData||window.clipboardData).getData('text');
-    pasted.split(/[\s,\n]+/).map(s=>s.trim().toUpperCase()).filter(Boolean).forEach(addTag);
-    input.value='';
-  });
-}
-function addTag(val){if(!val)return;disTags.push(val);renderTags();}
-function removeTag(idx){disTags.splice(idx,1);renderTags();}
-function renderTags(){
-  const box=document.getElementById('dis-tagbox');
-  const input=document.getElementById('dis-input');
-  box.querySelectorAll('.armp-tag').forEach(el=>el.remove());
-  disTags.forEach((t,i)=>{
-    const tag=document.createElement('span');
-    tag.className='armp-tag';
-    tag.innerHTML=`${t}<span class="tag-del" onclick="removeTag(${i})">×</span>`;
-    box.insertBefore(tag,input);
-  });
-  document.getElementById('dis-total').textContent=disTags.length;
-}
-setupTagInput();
-
-// ── FORM LOAD / SAVE ──
 function loadFormForDate(){
   const dayData=data[selectedDate]&&data[selectedDate][currentSeries];
-  // Received count
-  const recVal=dayData?dayData.rec:0;
-  document.getElementById('rec-count').value=recVal||'';
-  document.getElementById('rec-total').textContent=recVal||0;
-  // Dismantled tags
-  disTags=dayData&&dayData.dis?dayData.dis.map(r=>r.armp):[];
-  renderTags();
+  document.getElementById('rec-count').value=dayData?dayData.rec||'':'';
+  document.getElementById('dis-count').value=dayData?dayData.dis||'':'';
+  updateTotals();
 }
+
 function saveCurrentSeriesForm(){
   if(!data[selectedDate])data[selectedDate]={};
-  const recVal=parseInt(document.getElementById('rec-count').value)||0;
-  const disArr=disTags.map(a=>({armp:a}));
-  if(!recVal&&!disArr.length){
+  const rv=parseInt(document.getElementById('rec-count').value)||0;
+  const dv=parseInt(document.getElementById('dis-count').value)||0;
+  if(!rv&&!dv){
     delete data[selectedDate][currentSeries];
   } else {
-    data[selectedDate][currentSeries]={rec:recVal,dis:disArr};
+    data[selectedDate][currentSeries]={rec:rv,dis:dv};
   }
   if(!Object.keys(data[selectedDate]).length)delete data[selectedDate];
 }
+
 function saveEntry(){
   saveCurrentSeriesForm();
-  localStorage.setItem('dailyRegData',JSON.stringify(data));
-  renderCalendar();renderCumTable();
+  localStorage.setItem('dailyRegData2',JSON.stringify(data));
+  renderCalendar();
+  renderCumTable();
   const msg=document.getElementById('saveMsg');
-  msg.classList.add('show');setTimeout(()=>msg.classList.remove('show'),2500);
-}
-function clearForm(){
-  document.getElementById('rec-count').value='';
-  document.getElementById('rec-total').textContent='0';
-  disTags=[];renderTags();
+  msg.classList.add('show');
+  setTimeout(()=>msg.classList.remove('show'),2500);
 }
 
-// ── CUMULATIVE SIDEBAR ──
+function clearForm(){
+  document.getElementById('rec-count').value='';
+  document.getElementById('dis-count').value='';
+  updateTotals();
+}
+
 function updateMonthlyCumulative(){
   const mk=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
   const cum={'H-Series':{rec:0,dis:0},'A-Series':{rec:0,dis:0},'P15-Series':{rec:0,dis:0},'ZD30-Series':{rec:0,dis:0}};
   Object.keys(data).filter(d=>d.startsWith(mk)).forEach(d=>{
     SERIES.forEach(s=>{
       if(data[d][s]){
-        cum[s].rec+=typeof data[d][s].rec==='number'?data[d][s].rec:0;
-        cum[s].dis+=Array.isArray(data[d][s].dis)?data[d][s].dis.length:0;
+        cum[s].rec+=data[d][s].rec||0;
+        cum[s].dis+=data[d][s].dis||0;
       }
     });
   });
@@ -472,13 +335,10 @@ function updateMonthlyCumulative(){
     document.getElementById(`cum-${id}-rec`).textContent=cum[s].rec;
     document.getElementById(`cum-${id}-dis`).textContent=cum[s].dis;
   });
-  const tr=SERIES.reduce((a,s)=>a+cum[s].rec,0);
-  const td=SERIES.reduce((a,s)=>a+cum[s].dis,0);
-  document.getElementById('cum-total-rec').textContent=tr;
-  document.getElementById('cum-total-dis').textContent=td;
+  document.getElementById('cum-total-rec').textContent=SERIES.reduce((a,s)=>a+cum[s].rec,0);
+  document.getElementById('cum-total-dis').textContent=SERIES.reduce((a,s)=>a+cum[s].dis,0);
 }
 
-// ── CUMULATIVE TABLE ──
 function renderCumTable(){
   const mk=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
   const tbody=document.getElementById('cumTableBody');
@@ -486,44 +346,36 @@ function renderCumTable(){
   tbody.innerHTML='';
   const dates=Object.keys(data).filter(d=>d.startsWith(mk)).sort();
   if(!dates.length){
-    tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';
-    tfoot.innerHTML='';return;
+    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';
+    tfoot.innerHTML='';
+    return;
   }
   let grandRec=0,grandDis=0;
   dates.forEach(dateKey=>{
     const dayData=data[dateKey];
-    const sp=SERIES.filter(s=>dayData[s]&&(dayData[s].rec||dayData[s].dis&&dayData[s].dis.length));
+    const sp=SERIES.filter(s=>dayData[s]&&(dayData[s].rec||dayData[s].dis));
     if(!sp.length)return;
     sp.forEach((s,idx)=>{
       const sd=dayData[s];
-      const rc=typeof sd.rec==='number'?sd.rec:0;
-      const dc=Array.isArray(sd.dis)?sd.dis.length:0;
+      const rc=sd.rec||0;
+      const dc=sd.dis||0;
       grandRec+=rc;grandDis+=dc;
-      const disChips=Array.isArray(sd.dis)?sd.dis.map(r=>`<span class="armp-chip">${r.armp}</span>`).join(''):'';
       const tr=document.createElement('tr');
       if(idx===0){
-        const tdEl=document.createElement('td');
-        tdEl.rowSpan=sp.length;tdEl.className='label';
-        tdEl.style.borderRight='1px solid var(--border)';
-        tdEl.textContent=formatDisplay(dateKey);
-        tr.appendChild(tdEl);
+        const td=document.createElement('td');
+        td.rowSpan=sp.length;
+        td.className='label';
+        td.style.borderRight='1px solid var(--border)';
+        td.textContent=formatDisplay(dateKey);
+        tr.appendChild(td);
       }
-      tr.innerHTML+=`
-        <td><span class="badge ${BADGE_CLASS[s]}">${s}</span></td>
-        <td class="rec">${rc}</td>
-        <td>${disChips||'<span style="color:var(--muted);font-size:0.75rem;">—</span>'}</td>
-        <td class="dis">${dc}</td>
-      `;
+      tr.innerHTML+=`<td><span class="badge ${BADGE_CLASS[s]}">${s}</span></td><td class="rec">${rc}</td><td class="dis">${dc}</td>`;
       tbody.appendChild(tr);
     });
   });
-  tfoot.innerHTML=`<tr>
-    <td colspan="2" style="text-align:right;padding-right:16px;font-family:Inter,sans-serif;font-weight:700;">Monthly Total</td>
-    <td class="rec">${grandRec}</td><td></td><td class="dis">${grandDis}</td>
-  </tr>`;
+  tfoot.innerHTML=`<tr><td colspan="2" style="text-align:right;padding-right:16px;font-weight:700;">Monthly Total</td><td class="rec">${grandRec}</td><td class="dis">${grandDis}</td></tr>`;
 }
 
-// ── BOOT ──
 renderCalendar();
 loadFormForDate();
 renderCumTable();
