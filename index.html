@@ -265,105 +265,78 @@ calMonth = today.getMonth();
 selectedDate = toDateStr(today);
 document.getElementById('headerDate').textContent = today.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-function toDateStr(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function formatDisplay(ds) {
-  const [y,m,d] = ds.split('-');
-  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${d} ${mo[+m-1]} ${y}`;
-}
-function setSyncStatus(state) {
-  const el = document.getElementById('syncStatus');
+function toDateStr(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function formatDisplay(ds){const[y,m,d]=ds.split('-');const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return `${d} ${mo[+m-1]} ${y}`;}
+function setSyncStatus(state){
+  const el=document.getElementById('syncStatus');
   if(state==='ok'){el.className='sync-status sync-ok';el.textContent='✓ Firebase Connected';}
   else if(state==='err'){el.className='sync-status sync-err';el.textContent='✗ Offline - Local Save';}
   else{el.className='sync-status sync-ing';el.textContent='⟳ Syncing...';}
 }
 
-// ── AUTH ──
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser = user;
+onAuthStateChanged(auth, async(user)=>{
+  if(user){
+    currentUser=user;
     setSyncStatus('ing');
     await loadMonthData();
-    renderCalendar();
-    loadFormForDate();
-    renderCumTable();
+    renderCalendar();loadFormForDate();renderCumTable();
     setSyncStatus('ok');
-    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('loadingOverlay').style.display='none';
   } else {
-    try {
+    try{
       await signInAnonymously(auth);
-    } catch(e) {
-      console.error('Auth error:', e);
+    }catch(e){
+      console.error('Auth error:',e);
       setSyncStatus('err');
-      document.getElementById('loadingOverlay').style.display = 'none';
-      loadFromLocal();
-      renderCalendar(); loadFormForDate(); renderCumTable();
+      document.getElementById('loadingOverlay').style.display='none';
+      loadFromLocal();renderCalendar();loadFormForDate();renderCumTable();
     }
   }
 });
 
-// ── LOCAL STORAGE FALLBACK ──
-function loadFromLocal() {
-  const mk = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
-  const local = JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
-  data = {};
-  Object.keys(local).filter(k=>k.startsWith(mk)).forEach(k=>{ data[k]=local[k]; });
+function loadFromLocal(){
+  const mk=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  const local=JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
+  data={};
+  Object.keys(local).filter(k=>k.startsWith(mk)).forEach(k=>{data[k]=local[k];});
 }
-function saveToLocal(dateStr, series, rec, dis) {
-  const local = JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
-  if(!local[dateStr]) local[dateStr]={};
+function saveToLocal(dateStr,series,rec,dis){
+  const local=JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
+  if(!local[dateStr])local[dateStr]={};
   local[dateStr][series]={rec,dis};
-  localStorage.setItem('dailyRegData2', JSON.stringify(local));
+  localStorage.setItem('dailyRegData2',JSON.stringify(local));
 }
 
-// ── FIRESTORE ──
-async function loadMonthData() {
-  const mk = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
-  data = {};
-  try {
-    const q = query(collection(db,'entries'), where('uid','==',currentUser.uid), where('month','==',mk));
-    const snap = await getDocs(q);
-    snap.forEach(d => {
-      const e = d.data();
-      if(!data[e.date]) data[e.date]={};
-      data[e.date][e.series]={rec:e.rec||0,dis:e.dis||0};
-    });
+async function loadMonthData(){
+  const mk=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  data={};
+  try{
+    const q=query(collection(db,'entries'),where('uid','==',currentUser.uid),where('month','==',mk));
+    const snap=await getDocs(q);
+    snap.forEach(d=>{const e=d.data();if(!data[e.date])data[e.date]={};data[e.date][e.series]={rec:e.rec||0,dis:e.dis||0};});
     setSyncStatus('ok');
-  } catch(e) {
-    console.error('Load error:',e);
-    setSyncStatus('err');
-    loadFromLocal();
+  }catch(e){
+    console.error('Load error:',e);setSyncStatus('err');loadFromLocal();
   }
 }
 
-async function saveToFirestore(dateStr, series, rec, dis) {
-  const id = `${currentUser.uid}_${dateStr}_${series.replace(/\s/g,'-')}`;
-  await setDoc(doc(db,'entries',id), {
-    uid: currentUser.uid,
-    date: dateStr,
-    month: dateStr.substring(0,7),
-    series, rec, dis,
-    updatedAt: new Date().toISOString()
-  });
+async function saveToFirestore(dateStr,series,rec,dis){
+  const id=`${currentUser.uid}_${dateStr}_${series.replace(/\s/g,'-')}`;
+  await setDoc(doc(db,'entries',id),{uid:currentUser.uid,date:dateStr,month:dateStr.substring(0,7),series,rec,dis,updatedAt:new Date().toISOString()});
 }
 
-// ── CALENDAR ──
-function renderCalendar() {
+function renderCalendar(){
   const mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('calTitle').textContent=`${mo[calMonth]} ${calYear}`;
   document.getElementById('selDateDisplay').textContent=formatDisplay(selectedDate);
-  const grid=document.getElementById('calGrid');
-  grid.innerHTML='';
+  const grid=document.getElementById('calGrid');grid.innerHTML='';
   const first=new Date(calYear,calMonth,1).getDay();
   const days=new Date(calYear,calMonth+1,0).getDate();
   const todayStr=toDateStr(today);
   for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
   for(let d=1;d<=days;d++){
     const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const el=document.createElement('div');
-    el.className='cal-day';el.textContent=d;
+    const el=document.createElement('div');el.className='cal-day';el.textContent=d;
     if(ds===todayStr)el.classList.add('today');
     if(ds===selectedDate)el.classList.add('selected');
     if(data[ds]&&Object.keys(data[ds]).length)el.classList.add('has-data');
@@ -373,21 +346,14 @@ function renderCalendar() {
   updateMonthlyCumulative();
 }
 
-document.getElementById('calPrev').onclick=async()=>{
-  calMonth--;if(calMonth<0){calMonth=11;calYear--;}
-  setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();
-};
-document.getElementById('calNext').onclick=async()=>{
-  calMonth++;if(calMonth>11){calMonth=0;calYear++;}
-  setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();
-};
+document.getElementById('calPrev').onclick=async()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();};
+document.getElementById('calNext').onclick=async()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();};
 
 document.getElementById('seriesTabs').addEventListener('click',e=>{
   const tab=e.target.closest('.series-tab');if(!tab)return;
   document.querySelectorAll('.series-tab').forEach(t=>t.classList.remove('active'));
   tab.classList.add('active');currentSeries=tab.dataset.series;
-  document.getElementById('entryLabel').textContent=currentSeries;
-  loadFormForDate();
+  document.getElementById('entryLabel').textContent=currentSeries;loadFormForDate();
 });
 
 window.updateTotals=function(){
@@ -411,27 +377,16 @@ window.saveEntry=async function(){
   const dv=parseInt(document.getElementById('dis-count').value)||0;
   btn.disabled=true;btn.textContent='Saving...';
   msg.className='save-msg';msg.textContent='';
-
-  // Always save local first
   saveToLocal(selectedDate,currentSeries,rv,dv);
-
-  let firebaseOk=false;
+  let fbOk=false;
   if(currentUser){
-    try{
-      await saveToFirestore(selectedDate,currentSeries,rv,dv);
-      firebaseOk=true;
-      setSyncStatus('ok');
-    }catch(e){
-      console.error('Save error:',e);
-      setSyncStatus('err');
-    }
+    try{await saveToFirestore(selectedDate,currentSeries,rv,dv);fbOk=true;setSyncStatus('ok');}
+    catch(e){console.error('Save error:',e);setSyncStatus('err');}
   }
-
   if(!data[selectedDate])data[selectedDate]={};
   data[selectedDate][currentSeries]={rec:rv,dis:dv};
   renderCalendar();renderCumTable();
-
-  msg.textContent=firebaseOk?'✓ Saved to Firebase':'✓ Saved locally (reconnecting...)';
+  msg.textContent=fbOk?'✓ Saved to Firebase':'✓ Saved locally';
   msg.classList.add('show','ok');
   setTimeout(()=>msg.classList.remove('show','ok','err'),3000);
   btn.disabled=false;btn.textContent='Save Entry';
@@ -445,26 +400,17 @@ window.clearForm=function(){
 
 function updateMonthlyCumulative(){
   const cum={'H-Series':{rec:0,dis:0},'A-Series':{rec:0,dis:0},'P15-Series':{rec:0,dis:0},'ZD30-Series':{rec:0,dis:0}};
-  Object.keys(data).forEach(d=>{
-    SERIES.forEach(s=>{if(data[d][s]){cum[s].rec+=data[d][s].rec||0;cum[s].dis+=data[d][s].dis||0;}});
-  });
-  SERIES.forEach(s=>{
-    document.getElementById(`cum-${CUM_ID[s]}-rec`).textContent=cum[s].rec;
-    document.getElementById(`cum-${CUM_ID[s]}-dis`).textContent=cum[s].dis;
-  });
+  Object.keys(data).forEach(d=>{SERIES.forEach(s=>{if(data[d][s]){cum[s].rec+=data[d][s].rec||0;cum[s].dis+=data[d][s].dis||0;}});});
+  SERIES.forEach(s=>{document.getElementById(`cum-${CUM_ID[s]}-rec`).textContent=cum[s].rec;document.getElementById(`cum-${CUM_ID[s]}-dis`).textContent=cum[s].dis;});
   document.getElementById('cum-total-rec').textContent=SERIES.reduce((a,s)=>a+cum[s].rec,0);
   document.getElementById('cum-total-dis').textContent=SERIES.reduce((a,s)=>a+cum[s].dis,0);
 }
 
 function renderCumTable(){
-  const tbody=document.getElementById('cumTableBody');
-  const tfoot=document.getElementById('cumTableFoot');
+  const tbody=document.getElementById('cumTableBody');const tfoot=document.getElementById('cumTableFoot');
   tbody.innerHTML='';
   const dates=Object.keys(data).sort();
-  if(!dates.length){
-    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';
-    tfoot.innerHTML='';return;
-  }
+  if(!dates.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';tfoot.innerHTML='';return;}
   let grandRec=0,grandDis=0;
   dates.forEach(dateKey=>{
     const dayData=data[dateKey];
@@ -474,13 +420,7 @@ function renderCumTable(){
       const sd=dayData[s];const rc=sd.rec||0;const dc=sd.dis||0;
       grandRec+=rc;grandDis+=dc;
       const tr=document.createElement('tr');
-      if(idx===0){
-        const td=document.createElement('td');
-        td.rowSpan=sp.length;td.className='label';
-        td.style.borderRight='1px solid var(--border)';
-        td.textContent=formatDisplay(dateKey);
-        tr.appendChild(td);
-      }
+      if(idx===0){const td=document.createElement('td');td.rowSpan=sp.length;td.className='label';td.style.borderRight='1px solid var(--border)';td.textContent=formatDisplay(dateKey);tr.appendChild(td);}
       tr.innerHTML+=`<td><span class="badge ${BADGE_CLASS[s]}">${s}</span></td><td class="rec">${rc}</td><td class="dis">${dc}</td>`;
       tbody.appendChild(tr);
     });
