@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Entry Register</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#fff;--surface:#fff;--border:#dde2f0;--border2:#c8cfe0;--accent:#4f7cff;--accent2:#00a884;--warn:#e03e3e;--text:#1a1d27;--muted:#7a8099;--faint:#f0f2f8;--h-series:#5b52e0;--a-series:#00a884;--p15-series:#d4870a;--zd30-series:#e03e3e;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:15px;}
+
+/* AUTH SCREEN */
+.auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f0f2f8;}
+.auth-box{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 4px 24px rgba(0,0,0,0.10);display:flex;flex-direction:column;gap:20px;}
+.auth-logo{text-align:center;font-size:1.4rem;font-weight:700;color:var(--text);}
+.auth-logo span{color:var(--accent);}
+.auth-subtitle{text-align:center;font-size:0.85rem;color:var(--muted);}
+.auth-field{display:flex;flex-direction:column;gap:6px;}
+.auth-field label{font-size:0.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+.auth-field input{border:1.5px solid var(--border2);border-radius:8px;padding:11px 14px;font-size:0.95rem;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s,box-shadow 0.15s;color:var(--text);}
+.auth-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,124,255,0.12);}
+.auth-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:12px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
+.auth-btn:hover{opacity:0.88;}
+.auth-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.auth-err{font-size:0.8rem;color:var(--warn);text-align:center;min-height:18px;}
+.auth-switch{text-align:center;font-size:0.82rem;color:var(--muted);}
+.auth-switch a{color:var(--accent);cursor:pointer;font-weight:600;text-decoration:none;}
+.auth-switch a:hover{text-decoration:underline;}
+
+/* MAIN APP */
+.app-screen{display:none;flex-direction:column;min-height:100vh;}
+.header{background:#fff;border-bottom:1.5px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+.header h1{font-size:1.2rem;font-weight:700;color:var(--text);}
+.header h1 span{color:var(--accent);}
+.header-right{display:flex;align-items:center;gap:14px;}
+.header-date{font-size:0.9rem;color:var(--muted);}
+.user-info{font-size:0.78rem;color:var(--muted);background:var(--faint);padding:5px 12px;border-radius:20px;border:1px solid var(--border);}
+.btn-logout{background:#fff;color:var(--warn);border:1.5px solid var(--warn);border-radius:8px;padding:6px 14px;font-size:0.8rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;transition:all 0.15s;}
+.btn-logout:hover{background:var(--warn);color:#fff;}
+.layout{display:flex;flex:1;background:#fff;}
+.left-panel{width:260px;min-width:260px;background:#fff;border-right:1.5px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
+.calendar-widget{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;}
+.cal-header{background:var(--accent);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.cal-title{font-weight:700;font-size:0.95rem;color:#fff;}
+.cal-nav{background:rgba(255,255,255,0.22);border:none;color:#fff;width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;}
+.cal-nav:hover{background:rgba(255,255,255,0.38);}
+.cal-body{padding:10px;background:#fff;}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
+.cal-dow span{text-align:center;font-size:0.7rem;color:var(--muted);font-weight:700;padding:2px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-day{text-align:center;padding:6px 2px;font-size:0.82rem;border-radius:5px;cursor:pointer;transition:background 0.13s;color:var(--text);position:relative;}
+.cal-day:hover{background:var(--faint);}
+.cal-day.empty{cursor:default;}
+.cal-day.today{background:var(--accent);color:#fff;font-weight:700;}
+.cal-day.selected{background:var(--accent2);color:#fff;font-weight:700;}
+.cal-day.has-data::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:var(--accent2);border-radius:50%;}
+.cal-day.today.has-data::after,.cal-day.selected.has-data::after{background:#fff;}
+.selected-date-display{background:var(--faint);border:1.5px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.sel-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;}
+.sel-date{font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:700;color:var(--accent2);margin-top:4px;}
+.month-summary{border:1.5px solid var(--border);border-radius:10px;padding:14px;background:#fff;}
+.month-summary h3{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:10px;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.82rem;}
+.summary-row:last-child{border-bottom:none;}
+.stype{display:flex;align-items:center;gap:6px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.svals{display:flex;gap:14px;}
+.svals span{font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;}
+.rec{color:var(--accent2);}
+.dis{color:var(--warn);}
+.main{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:22px;background:#fff;}
+.section-title{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;font-weight:600;}
+.section-title::after{content:'';flex:1;height:1.5px;background:var(--border);}
+.series-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+.series-tab{padding:8px 20px;border-radius:6px;border:1.5px solid var(--border);background:#fff;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.13s;}
+.series-tab:hover{border-color:var(--accent);color:var(--text);}
+.series-tab.active{color:#fff;border-color:transparent;}
+.series-tab[data-series="H-Series"].active{background:var(--h-series);}
+.series-tab[data-series="A-Series"].active{background:var(--a-series);}
+.series-tab[data-series="P15-Series"].active{background:var(--p15-series);}
+.series-tab[data-series="ZD30-Series"].active{background:var(--zd30-series);}
+.entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.entry-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.entry-card-header{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--border);}
+.entry-card-header.received{background:#e8faf5;border-bottom-color:#b2e8d8;}
+.entry-card-header.dismantled{background:#fdeaea;border-bottom-color:#f5c0c0;}
+.entry-card-header h2{font-size:0.95rem;font-weight:700;letter-spacing:0.04em;}
+.entry-card-header.received h2{color:var(--accent2);}
+.entry-card-header.dismantled h2{color:var(--warn);}
+.entry-card-body{padding:20px;display:flex;flex-direction:column;gap:14px;}
+.count-label{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;}
+.count-input{background:#fff;border:1.5px solid var(--border2);border-radius:8px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent2);width:100%;outline:none;text-align:center;transition:border-color 0.15s,box-shadow 0.15s;-moz-appearance:textfield;}
+.count-input.dis-input{color:var(--warn);}
+.count-input::-webkit-inner-spin-button,.count-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.count-input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(0,168,132,0.12);}
+.count-input.dis-input:focus{border-color:var(--warn);box-shadow:0 0 0 3px rgba(224,62,62,0.1);}
+.count-hint{font-size:0.75rem;color:var(--muted);text-align:center;}
+.entry-total{background:var(--faint);border:1px solid var(--border);border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;}
+.entry-total .t-label{font-size:0.8rem;color:var(--muted);font-weight:500;}
+.entry-total .total-val{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;}
+.save-bar{display:flex;gap:12px;align-items:center;}
+.btn-save{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 32px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
+.btn-save:hover{opacity:0.88;}
+.btn-save:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-clear{background:#fff;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;padding:11px 22px;font-size:0.92rem;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color 0.15s,color 0.15s;}
+.btn-clear:hover{border-color:var(--warn);color:var(--warn);}
+.save-msg{font-size:0.85rem;color:var(--accent2);font-weight:600;opacity:0;transition:opacity 0.3s;}
+.save-msg.show{opacity:1;}
+.save-msg.err{color:var(--warn);}
+.cum-table-wrap{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.cum-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+.cum-table th{background:var(--faint);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-size:0.7rem;padding:11px 14px;text-align:left;border-bottom:1.5px solid var(--border);}
+.cum-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+.cum-table tr:last-child td{border-bottom:none;}
+.cum-table tr:hover td{background:#fafbff;}
+.cum-table td.rec{color:var(--accent2);font-family:'JetBrains Mono',monospace;font-weight:700;}
+.cum-table td.dis{color:var(--warn);font-family:'JetBrains Mono',monospace;font-weight:700;}
+.cum-table td.label{font-family:'Inter',sans-serif;font-weight:600;}
+.cum-table tfoot td{font-weight:700;background:var(--faint);border-top:2px solid var(--border);}
+.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:0.72rem;font-weight:700;}
+.badge-h{background:#ebe9ff;color:var(--h-series);}
+.badge-a{background:#d8f5ed;color:var(--a-series);}
+.badge-p15{background:#fef0d6;color:var(--p15-series);}
+.badge-zd30{background:#fde8e8;color:var(--zd30-series);}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;z-index:999;font-size:1rem;color:var(--muted);font-weight:600;gap:10px;}
+.spinner{width:22px;height:22px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(max-width:900px){.entry-grid{grid-template-columns:1fr;}.left-panel{width:220px;min-width:220px;}}
+@media(max-width:680px){.layout{flex-direction:column;}.left-panel{width:100%;border-right:none;border-bottom:1.5px solid var(--border);}.main{padding:16px;}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div> Loading...
+</div>
+
+<!-- AUTH SCREEN -->
+<div class="auth-screen" id="authScreen" style="display:none;">
+  <div class="auth-box">
+    <div class="auth-logo">Daily <span>Entry</span> Register</div>
+    <div class="auth-subtitle" id="authSubtitle">Sign in to your account</div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="auth-field" id="confirmField" style="display:none;">
+      <label>Confirm Password</label>
+      <input type="password" id="authConfirm" placeholder="••••••••">
+    </div>
+    <div class="auth-err" id="authErr"></div>
+    <button class="auth-btn" id="authBtn" onclick="handleAuth()">Sign In</button>
+    <div class="auth-switch" id="authSwitch">
+      Don't have an account? <a onclick="toggleAuthMode()">Sign Up</a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app-screen" id="appScreen">
+  <div class="header">
+    <h1>Daily <span>Entry</span> Register</h1>
+    <div class="header-right">
+      <div class="header-date" id="headerDate">—</div>
+      <div class="user-info" id="userInfo">—</div>
+      <button class="btn-logout" onclick="signOut()">Logout</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="left-panel">
+      <div class="calendar-widget">
+        <div class="cal-header">
+          <button class="cal-nav" id="calPrev">&#8249;</button>
+          <span class="cal-title" id="calTitle">—</span>
+          <button class="cal-nav" id="calNext">&#8250;</button>
+        </div>
+        <div class="cal-body">
+          <div class="cal-dow"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+      </div>
+      <div class="selected-date-display">
+        <div class="sel-label">Selected Date</div>
+        <div class="sel-date" id="selDateDisplay">—</div>
+      </div>
+      <div class="month-summary">
+        <h3>Month Cumulative</h3>
+        <div class="summary-row" style="font-size:0.68rem;color:var(--muted);padding-bottom:6px;">
+          <span>Series</span><div class="svals"><span class="rec">Rec</span><span class="dis">Dis</span></div>
+        </div>
+        <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--h-series)"></span>H-Series</span><div class="svals"><span class="rec" id="cum-h-rec">0</span><span class="dis" id="cum-h-dis">0</span></div></div>
+        <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--a-series)"></span>A-Series</span><div class="svals"><span class="rec" id="cum-a-rec">0</span><span class="dis" id="cum-a-dis">0</span></div></div>
+        <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--p15-series)"></span>P15-Series</span><div class="svals"><span class="rec" id="cum-p15-rec">0</span><span class="dis" id="cum-p15-dis">0</span></div></div>
+        <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--zd30-series)"></span>ZD30-Series</span><div class="svals"><span class="rec" id="cum-zd30-rec">0</span><span class="dis" id="cum-zd30-dis">0</span></div></div>
+        <div class="summary-row" style="padding-top:8px;"><span style="font-weight:700;font-size:0.85rem;">TOTAL</span><div class="svals"><span class="rec" style="font-weight:700;" id="cum-total-rec">0</span><span class="dis" style="font-weight:700;" id="cum-total-dis">0</span></div></div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div>
+        <div class="section-title">Series Type</div>
+        <div class="series-tabs" id="seriesTabs">
+          <button class="series-tab active" data-series="H-Series">H-Series</button>
+          <button class="series-tab" data-series="A-Series">A-Series</button>
+          <button class="series-tab" data-series="P15-Series">P15-Series</button>
+          <button class="series-tab" data-series="ZD30-Series">ZD30-Series</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Daily Entry — <span id="entryLabel" style="color:var(--accent);text-transform:none;letter-spacing:0;">H-Series</span></div>
+        <div class="entry-grid">
+          <div class="entry-card">
+            <div class="entry-card-header received">
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M4 7l4 4 4-4" stroke="#00a884" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="#00a884" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <h2>RECEIVED</h2>
+            </div>
+            <div class="entry-card-body">
+              <div class="count-label">Enter Count</div>
+              <input class="count-input" id="rec-count" type="number" min="0" placeholder="0" oninput="updateTotals()">
+              <div class="count-hint">Total number of items received</div>
+              <div class="entry-total">
+                <span class="t-label">Total Received</span>
+                <span class="total-val rec" id="rec-total">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="entry-card">
+            <div class="entry-card-header dismantled">
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#e03e3e" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <h2>DISMANTLED</h2>
+            </div>
+            <div class="entry-card-body">
+              <div class="count-label">Enter Count</div>
+              <input class="count-input dis-input" id="dis-count" type="number" min="0" placeholder="0" oninput="updateTotals()">
+              <div class="count-hint">Total number of items dismantled</div>
+              <div class="entry-total">
+                <span class="t-label">Total Dismantled</span>
+                <span class="total-val dis" id="dis-total">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button class="btn-save" id="saveBtn" onclick="saveEntry()">Save Entry</button>
+        <button class="btn-clear" onclick="clearForm()">Clear</button>
+        <span class="save-msg" id="saveMsg"></span>
+      </div>
+
+      <div>
+        <div class="section-title">Monthly Cumulative Table</div>
+        <div class="cum-table-wrap">
+          <table class="cum-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Series</th>
+                <th class="rec">Received</th>
+                <th class="dis">Dismantled</th>
+              </tr>
+            </thead>
+            <tbody id="cumTableBody">
+              <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>
+            </tbody>
+            <tfoot id="cumTableFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut as fbSignOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDncVxG6zqXjYD-VnmTLH7YhDoHUbmLXfE",
+  authDomain: "recon-store-daily-data.firebaseapp.com",
+  projectId: "recon-store-daily-data",
+  storageBucket: "recon-store-daily-data.firebasestorage.app",
+  messagingSenderId: "747638019242",
+  appId: "1:747638019242:web:18d02a9c777b3cb5d2acd3"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ── GLOBALS ──
+const SERIES = ['H-Series','A-Series','P15-Series','ZD30-Series'];
+const BADGE_CLASS = {'H-Series':'badge-h','A-Series':'badge-a','P15-Series':'badge-p15','ZD30-Series':'badge-zd30'};
+const CUM_ID = {'H-Series':'h','A-Series':'a','P15-Series':'p15','ZD30-Series':'zd30'};
+let currentSeries = 'H-Series';
+let calYear, calMonth, selectedDate;
+let data = {};
+let currentUser = null;
+let isSignUp = false;
+
+const today = new Date();
+calYear = today.getFullYear();
+calMonth = today.getMonth();
+selectedDate = toDateStr(today);
+
+document.getElementById('headerDate').textContent = today.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+function toDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatDisplay(ds) {
+  const [y,m,d] = ds.split('-');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d} ${mo[+m-1]} ${y}`;
+}
+
+// ── AUTH STATE ──
+onAuthStateChanged(auth, async (user) => {
+  document.getElementById('loadingOverlay').style.display = 'none';
+  if (user) {
+    currentUser = user;
+    document.getElementById('userInfo').textContent = user.email;
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'flex';
+    await loadMonthData();
+    renderCalendar();
+    loadFormForDate();
+    renderCumTable();
+  } else {
+    currentUser = null;
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('appScreen').style.display = 'none';
+  }
+});
+
+// ── AUTH FUNCTIONS ──
+window.toggleAuthMode = function() {
+  isSignUp = !isSignUp;
+  document.getElementById('authSubtitle').textContent = isSignUp ? 'Create a new account' : 'Sign in to your account';
+  document.getElementById('authBtn').textContent = isSignUp ? 'Sign Up' : 'Sign In';
+  document.getElementById('authSwitch').innerHTML = isSignUp
+    ? 'Already have an account? <a onclick="toggleAuthMode()">Sign In</a>'
+    : "Don't have an account? <a onclick=\"toggleAuthMode()\">Sign Up</a>";
+  document.getElementById('confirmField').style.display = isSignUp ? 'flex' : 'none';
+  document.getElementById('authErr').textContent = '';
+};
+
+window.handleAuth = async function() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const confirm = document.getElementById('authConfirm').value;
+  const btn = document.getElementById('authBtn');
+  const errEl = document.getElementById('authErr');
+  errEl.textContent = '';
+
+  if (!email || !password) { errEl.textContent = 'Please enter email and password.'; return; }
+  if (isSignUp && password !== confirm) { errEl.textContent = 'Passwords do not match.'; return; }
+  if (isSignUp && password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = isSignUp ? 'Creating...' : 'Signing in...';
+  try {
+    if (isSignUp) {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+  } catch(e) {
+    let msg = 'Something went wrong.';
+    if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') msg = 'Invalid email or password.';
+    else if (e.code === 'auth/email-already-in-use') msg = 'Email already in use. Sign in instead.';
+    else if (e.code === 'auth/invalid-email') msg = 'Invalid email address.';
+    errEl.textContent = msg;
+    btn.disabled = false;
+    btn.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+  }
+};
+
+window.signOut = async function() {
+  await fbSignOut(auth);
+  data = {};
+};
+
+// ── FIRESTORE ──
+function docId(dateStr) {
+  return `${currentUser.uid}_${dateStr}`;
+}
+
+async function loadMonthData() {
+  const mk = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  data = {};
+  try {
+    const col = collection(db, 'entries');
+    const q = query(col, where('uid','==',currentUser.uid), where('month','==',mk));
+    const snap = await getDocs(q);
+    snap.forEach(docSnap => {
+      const d = docSnap.data();
+      if (!data[d.date]) data[d.date] = {};
+      data[d.date][d.series] = { rec: d.rec || 0, dis: d.dis || 0 };
+    });
+  } catch(e) { console.error('Load error:', e); }
+}
+
+async function saveToFirestore(dateStr, series, rec, dis) {
+  const id = `${currentUser.uid}_${dateStr}_${series.replace(/\s/g,'-')}`;
+  const mk = `${dateStr.substring(0,7)}`;
+  await setDoc(doc(db, 'entries', id), {
+    uid: currentUser.uid,
+    email: currentUser.email,
+    date: dateStr,
+    month: mk,
+    series: series,
+    rec: rec,
+    dis: dis,
+    updatedAt: new Date().toISOString()
+  });
+}
+
+// ── CALENDAR ──
+function renderCalendar() {
+  const mo = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent = `${mo[calMonth]} ${calYear}`;
+  document.getElementById('selDateDisplay').textContent = formatDisplay(selectedDate);
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const first = new Date(calYear,calMonth,1).getDay();
+  const days = new Date(calYear,calMonth+1,0).getDate();
+  const todayStr = toDateStr(today);
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  for(let d=1;d<=days;d++){
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    el.className = 'cal-day'; el.textContent = d;
+    if(ds===todayStr) el.classList.add('today');
+    if(ds===selectedDate) el.classList.add('selected');
+    if(data[ds]&&Object.keys(data[ds]).length) el.classList.add('has-data');
+    el.onclick = () => { selectedDate=ds; renderCalendar(); loadFormForDate(); renderCumTable(); };
+    grid.appendChild(el);
+  }
+  updateMonthlyCumulative();
+}
+
+document.getElementById('calPrev').onclick = async () => {
+  calMonth--; if(calMonth<0){calMonth=11;calYear--;}
+  await loadMonthData(); renderCalendar(); renderCumTable();
+};
+document.getElementById('calNext').onclick = async () => {
+  calMonth++; if(calMonth>11){calMonth=0;calYear++;}
+  await loadMonthData(); renderCalendar(); renderCumTable();
+};
+
+// ── SERIES TABS ──
+document.getElementById('seriesTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.series-tab');
+  if(!tab) return;
+  document.querySelectorAll('.series-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  currentSeries = tab.dataset.series;
+  document.getElementById('entryLabel').textContent = currentSeries;
+  loadFormForDate();
+});
+
+// ── FORM ──
+window.updateTotals = function() {
+  const rv = parseInt(document.getElementById('rec-count').value)||0;
+  const dv = parseInt(document.getElementById('dis-count').value)||0;
+  document.getElementById('rec-total').textContent = rv;
+  document.getElementById('dis-total').textContent = dv;
+};
+
+function loadFormForDate() {
+  const dayData = data[selectedDate] && data[selectedDate][currentSeries];
+  document.getElementById('rec-count').value = dayData ? dayData.rec||'' : '';
+  document.getElementById('dis-count').value = dayData ? dayData.dis||'' : '';
+  updateTotals();
+}
+
+window.saveEntry = async function() {
+  const btn = document.getElementById('saveBtn');
+  const msg = document.getElementById('saveMsg');
+  const rv = parseInt(document.getElementById('rec-count').value)||0;
+  const dv = parseInt(document.getElementById('dis-count').value)||0;
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  msg.className = 'save-msg';
+  msg.textContent = '';
+  try {
+    await saveToFirestore(selectedDate, currentSeries, rv, dv);
+    if(!data[selectedDate]) data[selectedDate] = {};
+    data[selectedDate][currentSeries] = { rec: rv, dis: dv };
+    renderCalendar(); renderCumTable();
+    msg.textContent = '✓ Saved successfully';
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 2500);
+  } catch(e) {
+    msg.textContent = '✗ Save failed. Check connection.';
+    msg.classList.add('show','err');
+    setTimeout(() => { msg.classList.remove('show','err'); }, 3000);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Save Entry';
+};
+
+window.clearForm = function() {
+  document.getElementById('rec-count').value = '';
+  document.getElementById('dis-count').value = '';
+  updateTotals();
+};
+
+// ── CUMULATIVE ──
+function updateMonthlyCumulative() {
+  const cum = {'H-Series':{rec:0,dis:0},'A-Series':{rec:0,dis:0},'P15-Series':{rec:0,dis:0},'ZD30-Series':{rec:0,dis:0}};
+  Object.keys(data).forEach(d => {
+    SERIES.forEach(s => {
+      if(data[d][s]){ cum[s].rec+=data[d][s].rec||0; cum[s].dis+=data[d][s].dis||0; }
+    });
+  });
+  SERIES.forEach(s => {
+    const id = CUM_ID[s];
+    document.getElementById(`cum-${id}-rec`).textContent = cum[s].rec;
+    document.getElementById(`cum-${id}-dis`).textContent = cum[s].dis;
+  });
+  document.getElementById('cum-total-rec').textContent = SERIES.reduce((a,s)=>a+cum[s].rec,0);
+  document.getElementById('cum-total-dis').textContent = SERIES.reduce((a,s)=>a+cum[s].dis,0);
+}
+
+function renderCumTable() {
+  const tbody = document.getElementById('cumTableBody');
+  const tfoot = document.getElementById('cumTableFoot');
+  tbody.innerHTML = '';
+  const dates = Object.keys(data).sort();
+  if(!dates.length){
+    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';
+    tfoot.innerHTML=''; return;
+  }
+  let grandRec=0, grandDis=0;
+  dates.forEach(dateKey => {
+    const dayData = data[dateKey];
+    const sp = SERIES.filter(s=>dayData[s]&&(dayData[s].rec||dayData[s].dis));
+    if(!sp.length) return;
+    sp.forEach((s,idx) => {
+      const sd = dayData[s];
+      const rc = sd.rec||0; const dc = sd.dis||0;
+      grandRec+=rc; grandDis+=dc;
+      const tr = document.createElement('tr');
+      if(idx===0){
+        const td = document.createElement('td');
+        td.rowSpan=sp.length; td.className='label';
+        td.style.borderRight='1px solid var(--border)';
+        td.textContent=formatDisplay(dateKey);
+        tr.appendChild(td);
+      }
+      tr.innerHTML+=`<td><span class="badge ${BADGE_CLASS[s]}">${s}</span></td><td class="rec">${rc}</td><td class="dis">${dc}</td>`;
+      tbody.appendChild(tr);
+    });
+  });
+  tfoot.innerHTML=`<tr><td colspan="2" style="text-align:right;padding-right:16px;font-weight:700;">Monthly Total</td><td class="rec">${grandRec}</td><td class="dis">${grandDis}</td></tr>`;
+}
+</script>
+</body>
+</html>
