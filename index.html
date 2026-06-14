@@ -14,7 +14,7 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .header h1 span{color:var(--accent);}
 .header-right{display:flex;align-items:center;gap:14px;}
 .header-date{font-size:0.9rem;color:var(--muted);}
-.sync-status{font-size:0.75rem;padding:4px 10px;border-radius:20px;font-weight:600;}
+.sync-status{font-size:0.75rem;padding:4px 12px;border-radius:20px;font-weight:600;}
 .sync-ok{background:#d8f5ed;color:var(--accent2);}
 .sync-err{background:#fde8e8;color:var(--warn);}
 .sync-ing{background:#fef0d6;color:var(--p15-series);}
@@ -236,7 +236,7 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, setDoc, collection, query, where, getDocs, enableIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDncVxG6zqXjYD-VnmTLH7YhDoHUbmLXfE",
@@ -251,7 +251,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ── GLOBALS ──
 const SERIES = ['H-Series','A-Series','P15-Series','ZD30-Series'];
 const BADGE_CLASS = {'H-Series':'badge-h','A-Series':'badge-a','P15-Series':'badge-p15','ZD30-Series':'badge-zd30'};
 const CUM_ID = {'H-Series':'h','A-Series':'a','P15-Series':'p15','ZD30-Series':'zd30'};
@@ -274,12 +273,11 @@ function formatDisplay(ds) {
   const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${d} ${mo[+m-1]} ${y}`;
 }
-
 function setSyncStatus(state) {
   const el = document.getElementById('syncStatus');
-  if(state === 'ok') { el.className='sync-status sync-ok'; el.textContent='✓ Connected'; }
-  else if(state === 'err') { el.className='sync-status sync-err'; el.textContent='✗ Offline'; }
-  else { el.className='sync-status sync-ing'; el.textContent='⟳ Syncing'; }
+  if(state==='ok'){el.className='sync-status sync-ok';el.textContent='✓ Firebase Connected';}
+  else if(state==='err'){el.className='sync-status sync-err';el.textContent='✗ Offline - Local Save';}
+  else{el.className='sync-status sync-ing';el.textContent='⟳ Syncing...';}
 }
 
 // ── AUTH ──
@@ -300,197 +298,185 @@ onAuthStateChanged(auth, async (user) => {
       console.error('Auth error:', e);
       setSyncStatus('err');
       document.getElementById('loadingOverlay').style.display = 'none';
-      // Fallback to localStorage
-      data = JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
+      loadFromLocal();
       renderCalendar(); loadFormForDate(); renderCumTable();
     }
   }
 });
+
+// ── LOCAL STORAGE FALLBACK ──
+function loadFromLocal() {
+  const mk = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  const local = JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
+  data = {};
+  Object.keys(local).filter(k=>k.startsWith(mk)).forEach(k=>{ data[k]=local[k]; });
+}
+function saveToLocal(dateStr, series, rec, dis) {
+  const local = JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
+  if(!local[dateStr]) local[dateStr]={};
+  local[dateStr][series]={rec,dis};
+  localStorage.setItem('dailyRegData2', JSON.stringify(local));
+}
 
 // ── FIRESTORE ──
 async function loadMonthData() {
   const mk = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
   data = {};
   try {
-    const col = collection(db, 'entries');
-    const q = query(col, where('uid','==',currentUser.uid), where('month','==',mk));
+    const q = query(collection(db,'entries'), where('uid','==',currentUser.uid), where('month','==',mk));
     const snap = await getDocs(q);
-    snap.forEach(docSnap => {
-      const d = docSnap.data();
-      if (!data[d.date]) data[d.date] = {};
-      data[d.date][d.series] = { rec: d.rec||0, dis: d.dis||0 };
+    snap.forEach(d => {
+      const e = d.data();
+      if(!data[e.date]) data[e.date]={};
+      data[e.date][e.series]={rec:e.rec||0,dis:e.dis||0};
     });
     setSyncStatus('ok');
   } catch(e) {
-    console.error('Load error:', e);
+    console.error('Load error:',e);
     setSyncStatus('err');
-    // fallback localStorage
-    const local = JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
-    const mk2 = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
-    Object.keys(local).filter(k=>k.startsWith(mk2)).forEach(k=>{ data[k]=local[k]; });
+    loadFromLocal();
   }
 }
 
 async function saveToFirestore(dateStr, series, rec, dis) {
   const id = `${currentUser.uid}_${dateStr}_${series.replace(/\s/g,'-')}`;
-  const mk = dateStr.substring(0,7);
-  await setDoc(doc(db, 'entries', id), {
+  await setDoc(doc(db,'entries',id), {
     uid: currentUser.uid,
     date: dateStr,
-    month: mk,
-    series: series,
-    rec: rec,
-    dis: dis,
+    month: dateStr.substring(0,7),
+    series, rec, dis,
     updatedAt: new Date().toISOString()
   });
 }
 
 // ── CALENDAR ──
 function renderCalendar() {
-  const mo = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calTitle').textContent = `${mo[calMonth]} ${calYear}`;
-  document.getElementById('selDateDisplay').textContent = formatDisplay(selectedDate);
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-  const first = new Date(calYear,calMonth,1).getDay();
-  const days = new Date(calYear,calMonth+1,0).getDate();
-  const todayStr = toDateStr(today);
+  const mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent=`${mo[calMonth]} ${calYear}`;
+  document.getElementById('selDateDisplay').textContent=formatDisplay(selectedDate);
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML='';
+  const first=new Date(calYear,calMonth,1).getDay();
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  const todayStr=toDateStr(today);
   for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
   for(let d=1;d<=days;d++){
     const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const el=document.createElement('div');
-    el.className='cal-day'; el.textContent=d;
-    if(ds===todayStr) el.classList.add('today');
-    if(ds===selectedDate) el.classList.add('selected');
-    if(data[ds]&&Object.keys(data[ds]).length) el.classList.add('has-data');
-    el.onclick=()=>{ selectedDate=ds; renderCalendar(); loadFormForDate(); renderCumTable(); };
+    el.className='cal-day';el.textContent=d;
+    if(ds===todayStr)el.classList.add('today');
+    if(ds===selectedDate)el.classList.add('selected');
+    if(data[ds]&&Object.keys(data[ds]).length)el.classList.add('has-data');
+    el.onclick=()=>{selectedDate=ds;renderCalendar();loadFormForDate();renderCumTable();};
     grid.appendChild(el);
   }
   updateMonthlyCumulative();
 }
 
-document.getElementById('calPrev').onclick = async () => {
-  calMonth--; if(calMonth<0){calMonth=11;calYear--;}
-  setSyncStatus('ing');
-  await loadMonthData(); renderCalendar(); renderCumTable();
+document.getElementById('calPrev').onclick=async()=>{
+  calMonth--;if(calMonth<0){calMonth=11;calYear--;}
+  setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();
 };
-document.getElementById('calNext').onclick = async () => {
-  calMonth++; if(calMonth>11){calMonth=0;calYear++;}
-  setSyncStatus('ing');
-  await loadMonthData(); renderCalendar(); renderCumTable();
+document.getElementById('calNext').onclick=async()=>{
+  calMonth++;if(calMonth>11){calMonth=0;calYear++;}
+  setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();
 };
 
-// ── SERIES TABS ──
-document.getElementById('seriesTabs').addEventListener('click', e => {
-  const tab = e.target.closest('.series-tab');
-  if(!tab) return;
+document.getElementById('seriesTabs').addEventListener('click',e=>{
+  const tab=e.target.closest('.series-tab');if(!tab)return;
   document.querySelectorAll('.series-tab').forEach(t=>t.classList.remove('active'));
-  tab.classList.add('active');
-  currentSeries = tab.dataset.series;
-  document.getElementById('entryLabel').textContent = currentSeries;
+  tab.classList.add('active');currentSeries=tab.dataset.series;
+  document.getElementById('entryLabel').textContent=currentSeries;
   loadFormForDate();
 });
 
-// ── FORM ──
-window.updateTotals = function() {
-  const rv = parseInt(document.getElementById('rec-count').value)||0;
-  const dv = parseInt(document.getElementById('dis-count').value)||0;
-  document.getElementById('rec-total').textContent = rv;
-  document.getElementById('dis-total').textContent = dv;
+window.updateTotals=function(){
+  const rv=parseInt(document.getElementById('rec-count').value)||0;
+  const dv=parseInt(document.getElementById('dis-count').value)||0;
+  document.getElementById('rec-total').textContent=rv;
+  document.getElementById('dis-total').textContent=dv;
 };
 
-function loadFormForDate() {
-  const dayData = data[selectedDate]&&data[selectedDate][currentSeries];
-  document.getElementById('rec-count').value = dayData ? dayData.rec||'' : '';
-  document.getElementById('dis-count').value = dayData ? dayData.dis||'' : '';
+function loadFormForDate(){
+  const dayData=data[selectedDate]&&data[selectedDate][currentSeries];
+  document.getElementById('rec-count').value=dayData?dayData.rec||'':'';
+  document.getElementById('dis-count').value=dayData?dayData.dis||'':'';
   updateTotals();
 }
 
-window.saveEntry = async function() {
-  const btn = document.getElementById('saveBtn');
-  const msg = document.getElementById('saveMsg');
-  const rv = parseInt(document.getElementById('rec-count').value)||0;
-  const dv = parseInt(document.getElementById('dis-count').value)||0;
-  btn.disabled = true; btn.textContent = 'Saving...';
-  msg.className = 'save-msg'; msg.textContent = '';
+window.saveEntry=async function(){
+  const btn=document.getElementById('saveBtn');
+  const msg=document.getElementById('saveMsg');
+  const rv=parseInt(document.getElementById('rec-count').value)||0;
+  const dv=parseInt(document.getElementById('dis-count').value)||0;
+  btn.disabled=true;btn.textContent='Saving...';
+  msg.className='save-msg';msg.textContent='';
 
-  // Always save to localStorage first
-  const local = JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
-  if(!local[selectedDate]) local[selectedDate]={};
-  local[selectedDate][currentSeries]={rec:rv,dis:dv};
-  localStorage.setItem('dailyRegData2', JSON.stringify(local));
+  // Always save local first
+  saveToLocal(selectedDate,currentSeries,rv,dv);
 
-  // Then try Firebase
-  let firebaseOk = false;
-  if(currentUser) {
-    try {
-      await saveToFirestore(selectedDate, currentSeries, rv, dv);
-      firebaseOk = true;
+  let firebaseOk=false;
+  if(currentUser){
+    try{
+      await saveToFirestore(selectedDate,currentSeries,rv,dv);
+      firebaseOk=true;
       setSyncStatus('ok');
-    } catch(e) {
-      console.error('Firebase save error:', e);
+    }catch(e){
+      console.error('Save error:',e);
       setSyncStatus('err');
     }
   }
 
-  if(!data[selectedDate]) data[selectedDate]={};
+  if(!data[selectedDate])data[selectedDate]={};
   data[selectedDate][currentSeries]={rec:rv,dis:dv};
-  renderCalendar(); renderCumTable();
+  renderCalendar();renderCumTable();
 
-  if(firebaseOk) {
-    msg.textContent = '✓ Saved to Firebase';
-    msg.classList.add('show','ok');
-  } else {
-    msg.textContent = '✓ Saved locally (Firebase offline)';
-    msg.classList.add('show','ok');
-  }
-  setTimeout(()=>{ msg.classList.remove('show','ok','err'); }, 3000);
-  btn.disabled = false; btn.textContent = 'Save Entry';
+  msg.textContent=firebaseOk?'✓ Saved to Firebase':'✓ Saved locally (reconnecting...)';
+  msg.classList.add('show','ok');
+  setTimeout(()=>msg.classList.remove('show','ok','err'),3000);
+  btn.disabled=false;btn.textContent='Save Entry';
 };
 
-window.clearForm = function() {
-  document.getElementById('rec-count').value = '';
-  document.getElementById('dis-count').value = '';
+window.clearForm=function(){
+  document.getElementById('rec-count').value='';
+  document.getElementById('dis-count').value='';
   updateTotals();
 };
 
-// ── CUMULATIVE ──
-function updateMonthlyCumulative() {
+function updateMonthlyCumulative(){
   const cum={'H-Series':{rec:0,dis:0},'A-Series':{rec:0,dis:0},'P15-Series':{rec:0,dis:0},'ZD30-Series':{rec:0,dis:0}};
   Object.keys(data).forEach(d=>{
-    SERIES.forEach(s=>{ if(data[d][s]){ cum[s].rec+=data[d][s].rec||0; cum[s].dis+=data[d][s].dis||0; } });
+    SERIES.forEach(s=>{if(data[d][s]){cum[s].rec+=data[d][s].rec||0;cum[s].dis+=data[d][s].dis||0;}});
   });
   SERIES.forEach(s=>{
-    const id=CUM_ID[s];
-    document.getElementById(`cum-${id}-rec`).textContent=cum[s].rec;
-    document.getElementById(`cum-${id}-dis`).textContent=cum[s].dis;
+    document.getElementById(`cum-${CUM_ID[s]}-rec`).textContent=cum[s].rec;
+    document.getElementById(`cum-${CUM_ID[s]}-dis`).textContent=cum[s].dis;
   });
   document.getElementById('cum-total-rec').textContent=SERIES.reduce((a,s)=>a+cum[s].rec,0);
   document.getElementById('cum-total-dis').textContent=SERIES.reduce((a,s)=>a+cum[s].dis,0);
 }
 
-function renderCumTable() {
+function renderCumTable(){
   const tbody=document.getElementById('cumTableBody');
   const tfoot=document.getElementById('cumTableFoot');
   tbody.innerHTML='';
   const dates=Object.keys(data).sort();
   if(!dates.length){
     tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';
-    tfoot.innerHTML=''; return;
+    tfoot.innerHTML='';return;
   }
   let grandRec=0,grandDis=0;
   dates.forEach(dateKey=>{
     const dayData=data[dateKey];
     const sp=SERIES.filter(s=>dayData[s]&&(dayData[s].rec||dayData[s].dis));
-    if(!sp.length) return;
+    if(!sp.length)return;
     sp.forEach((s,idx)=>{
-      const sd=dayData[s];
-      const rc=sd.rec||0; const dc=sd.dis||0;
-      grandRec+=rc; grandDis+=dc;
+      const sd=dayData[s];const rc=sd.rec||0;const dc=sd.dis||0;
+      grandRec+=rc;grandDis+=dc;
       const tr=document.createElement('tr');
       if(idx===0){
         const td=document.createElement('td');
-        td.rowSpan=sp.length; td.className='label';
+        td.rowSpan=sp.length;td.className='label';
         td.style.borderRight='1px solid var(--border)';
         td.textContent=formatDisplay(dateKey);
         tr.appendChild(td);
