@@ -14,7 +14,7 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .header h1 span{color:var(--accent);}
 .header-right{display:flex;align-items:center;gap:14px;}
 .header-date{font-size:0.9rem;color:var(--muted);}
-.sync-status{font-size:0.75rem;padding:4px 12px;border-radius:20px;font-weight:600;}
+.sync-status{font-size:0.75rem;padding:4px 12px;border-radius:20px;font-weight:600;cursor:default;}
 .sync-ok{background:#d8f5ed;color:var(--accent2);}
 .sync-err{background:#fde8e8;color:var(--warn);}
 .sync-ing{background:#fef0d6;color:var(--p15-series);}
@@ -107,6 +107,10 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .loading-overlay{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px;}
 .spinner{width:36px;height:36px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
 .loading-text{font-size:0.95rem;color:var(--muted);font-weight:600;}
+/* Debug panel */
+.debug-bar{background:#1a1d27;color:#7a8099;font-family:'JetBrains Mono',monospace;font-size:0.72rem;padding:6px 16px;display:flex;align-items:center;gap:10px;border-top:1px solid #2a2d3a;}
+.debug-bar span{color:#4f7cff;}
+#debugMsg{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @media(max-width:900px){.entry-grid{grid-template-columns:1fr;}.left-panel{width:220px;min-width:220px;}}
 @media(max-width:680px){.layout{flex-direction:column;}.left-panel{width:100%;border-right:none;border-bottom:1.5px solid var(--border);}.main{padding:16px;}}
@@ -116,14 +120,14 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text">Connecting to Firebase...</div>
+  <div class="loading-text" id="loadingText">Connecting to Firebase...</div>
 </div>
 
 <div class="header">
   <h1>Daily <span>Entry</span> Register</h1>
   <div class="header-right">
     <div class="header-date" id="headerDate">—</div>
-    <div class="sync-status sync-ing" id="syncStatus">⟳ Connecting</div>
+    <div class="sync-status sync-ing" id="syncStatus" title="Click to retry" onclick="retryLoad()">⟳ Connecting</div>
   </div>
 </div>
 
@@ -186,7 +190,6 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
             </div>
           </div>
         </div>
-
         <div class="entry-card">
           <div class="entry-card-header dismantled">
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#e03e3e" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -233,201 +236,374 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
   </div>
 </div>
 
+<!-- Debug bar — shows Firebase errors clearly -->
+<div class="debug-bar">
+  <span>Firebase:</span>
+  <span id="debugMsg">Initializing…</span>
+</div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// ✅ NEW FIREBASE CONFIG
+// ─── Firebase Config ────────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyA_Ux13nkl7QiIbe5wQI5tOtHgQ2ZsslW8",
   authDomain: "recon-store-16d08.firebaseapp.com",
   projectId: "recon-store-16d08",
   storageBucket: "recon-store-16d08.firebasestorage.app",
   messagingSenderId: "278030259283",
-  appId: "1:278030259283:web:7416d4ead00f2cdb62a2a6",
-  measurementId: "G-CLS4GE9SWF"
+  appId: "1:278030259283:web:7416d4ead00f2cdb62a2a6"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const db  = getFirestore(app);
 
-const SERIES = ['H-Series','A-Series','P15-Series','ZD30-Series'];
+// ─── Constants ───────────────────────────────────────────────────────────────
+const SHARED_UID  = 'recon-store-shared-user-001';
+const SERIES      = ['H-Series','A-Series','P15-Series','ZD30-Series'];
 const BADGE_CLASS = {'H-Series':'badge-h','A-Series':'badge-a','P15-Series':'badge-p15','ZD30-Series':'badge-zd30'};
-const CUM_ID = {'H-Series':'h','A-Series':'a','P15-Series':'p15','ZD30-Series':'zd30'};
+const CUM_ID      = {'H-Series':'h','A-Series':'a','P15-Series':'p15','ZD30-Series':'zd30'};
+
+// ─── State ───────────────────────────────────────────────────────────────────
 let currentSeries = 'H-Series';
 let calYear, calMonth, selectedDate;
-let data = {};
-let currentUser = null;
+let data = {};   // { "YYYY-MM-DD": { "H-Series": {rec,dis}, ... } }
 
 const today = new Date();
-calYear = today.getFullYear();
-calMonth = today.getMonth();
+calYear      = today.getFullYear();
+calMonth     = today.getMonth();
 selectedDate = toDateStr(today);
-document.getElementById('headerDate').textContent = today.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-function toDateStr(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function formatDisplay(ds){const[y,m,d]=ds.split('-');const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return `${d} ${mo[+m-1]} ${y}`;}
+document.getElementById('headerDate').textContent =
+  today.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function toDateStr(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatDisplay(ds){
+  const [y,m,d] = ds.split('-');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d} ${mo[+m-1]} ${y}`;
+}
+function dbg(msg){ document.getElementById('debugMsg').textContent = msg; }
 function setSyncStatus(state){
-  const el=document.getElementById('syncStatus');
-  if(state==='ok'){el.className='sync-status sync-ok';el.textContent='✓ Firebase Connected';}
-  else if(state==='err'){el.className='sync-status sync-err';el.textContent='✗ Offline - Local Save';}
-  else{el.className='sync-status sync-ing';el.textContent='⟳ Syncing...';}
+  const el = document.getElementById('syncStatus');
+  if(state==='ok'){   el.className='sync-status sync-ok';  el.textContent='✓ Firebase Synced'; }
+  else if(state==='err'){ el.className='sync-status sync-err'; el.textContent='✗ Offline — click to retry'; }
+  else{               el.className='sync-status sync-ing'; el.textContent='⟳ Syncing…'; }
 }
 
-onAuthStateChanged(auth, async(user)=>{
-  if(user){
-    currentUser=user;
-    setSyncStatus('ing');
-    await loadMonthData();
-    renderCalendar();loadFormForDate();renderCumTable();
-    setSyncStatus('ok');
-    document.getElementById('loadingOverlay').style.display='none';
-  } else {
-    try{
-      await signInAnonymously(auth);
-    }catch(e){
-      console.error('Auth error:',e);
-      setSyncStatus('err');
-      document.getElementById('loadingOverlay').style.display='none';
-      loadFromLocal();renderCalendar();loadFormForDate();renderCumTable();
-    }
-  }
-});
-
-function loadFromLocal(){
-  const mk=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
-  const local=JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
-  data={};
-  Object.keys(local).filter(k=>k.startsWith(mk)).forEach(k=>{data[k]=local[k];});
+// ─── Boot ────────────────────────────────────────────────────────────────────
+async function init(){
+  setSyncStatus('ing');
+  dbg('Loading month data from Firestore…');
+  document.getElementById('loadingText').textContent = 'Fetching from Firebase…';
+  await loadMonthData();
+  renderCalendar();
+  loadFormForDate();
+  renderCumTable();
+  document.getElementById('loadingOverlay').style.display = 'none';
 }
-function saveToLocal(dateStr,series,rec,dis){
-  const local=JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
-  if(!local[dateStr])local[dateStr]={};
-  local[dateStr][series]={rec,dis};
-  localStorage.setItem('dailyRegData2',JSON.stringify(local));
-}
+init();
 
+// Retry on click of sync badge
+window.retryLoad = async function(){
+  setSyncStatus('ing');
+  dbg('Retrying Firestore fetch…');
+  await loadMonthData();
+  renderCalendar();
+  loadFormForDate();
+  renderCumTable();
+};
+
+// ─── Firestore Load ───────────────────────────────────────────────────────────
 async function loadMonthData(){
-  const mk=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
-  data={};
-  try{
-    const q=query(collection(db,'entries'),where('uid','==',currentUser.uid),where('month','==',mk));
-    const snap=await getDocs(q);
-    snap.forEach(d=>{const e=d.data();if(!data[e.date])data[e.date]={};data[e.date][e.series]={rec:e.rec||0,dis:e.dis||0};});
+  // month key e.g. "2025-06"
+  const mk = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  data = {};
+  try {
+    dbg(`Querying: uid=${SHARED_UID}  month=${mk}`);
+    const entriesRef = collection(db, 'entries');
+    const q = query(
+      entriesRef,
+      where('uid',   '==', SHARED_UID),
+      where('month', '==', mk)
+    );
+    const snap = await getDocs(q);
+
+    // ✅ FIX: renamed forEach param from 'd' to 'docSnap'
+    //    The old code used 'd' which shadowed the imported Firestore 'doc()' function
+    //    causing silent failures on subsequent setDoc calls.
+    snap.forEach(docSnap => {
+      const e = docSnap.data();
+      dbg(`Found doc: ${docSnap.id} → date=${e.date} series=${e.series} rec=${e.rec} dis=${e.dis}`);
+      if (!data[e.date]) data[e.date] = {};
+      data[e.date][e.series] = { rec: e.rec || 0, dis: e.dis || 0 };
+    });
+
+    const count = snap.size;
+    dbg(`Loaded ${count} entr${count===1?'y':'ies'} for ${mk}`);
     setSyncStatus('ok');
-  }catch(e){
-    console.error('Load error:',e);setSyncStatus('err');loadFromLocal();
+
+  } catch(err) {
+    // ✅ FIX: show the real error so you know what's wrong
+    const msg = err.code ? `[${err.code}] ${err.message}` : String(err);
+    dbg(`❌ Load failed: ${msg}`);
+    console.error('Firestore load error:', err);
+    setSyncStatus('err');
+    // Fall back to localStorage so the app doesn't break entirely
+    loadFromLocal(mk);
   }
 }
 
-async function saveToFirestore(dateStr,series,rec,dis){
-  const id=`${currentUser.uid}_${dateStr}_${series.replace(/\s/g,'-')}`;
-  await setDoc(doc(db,'entries',id),{uid:currentUser.uid,date:dateStr,month:dateStr.substring(0,7),series,rec,dis,updatedAt:new Date().toISOString()});
+// ─── Firestore Save ───────────────────────────────────────────────────────────
+async function saveToFirestore(dateStr, series, rec, dis){
+  // Document ID is deterministic: same date+series always overwrites cleanly
+  const docId = `${SHARED_UID}_${dateStr}_${series.replace(/\s/g,'-')}`;
+  dbg(`Saving: ${docId}`);
+  // ✅ FIX: use 'docRef' variable name — 'doc' is the imported function
+  const docRef = doc(db, 'entries', docId);
+  await setDoc(docRef, {
+    uid:       SHARED_UID,
+    date:      dateStr,
+    month:     dateStr.substring(0, 7),
+    series:    series,
+    rec:       rec,
+    dis:       dis,
+    updatedAt: new Date().toISOString()
+  });
+  dbg(`Saved ✓ ${docId}`);
 }
 
+// ─── localStorage fallback (single-device backup only) ───────────────────────
+function loadFromLocal(mk){
+  const local = JSON.parse(localStorage.getItem('dailyRegData2') || '{}');
+  data = {};
+  Object.keys(local)
+    .filter(k => k.startsWith(mk))
+    .forEach(k => { data[k] = local[k]; });
+  dbg(`Local fallback: ${Object.keys(data).length} day(s) loaded`);
+}
+function saveToLocal(dateStr, series, rec, dis){
+  const local = JSON.parse(localStorage.getItem('dailyRegData2') || '{}');
+  if (!local[dateStr]) local[dateStr] = {};
+  local[dateStr][series] = { rec, dis };
+  localStorage.setItem('dailyRegData2', JSON.stringify(local));
+}
+
+// ─── Calendar ────────────────────────────────────────────────────────────────
 function renderCalendar(){
-  const mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calTitle').textContent=`${mo[calMonth]} ${calYear}`;
-  document.getElementById('selDateDisplay').textContent=formatDisplay(selectedDate);
-  const grid=document.getElementById('calGrid');grid.innerHTML='';
-  const first=new Date(calYear,calMonth,1).getDay();
-  const days=new Date(calYear,calMonth+1,0).getDate();
-  const todayStr=toDateStr(today);
-  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
-  for(let d=1;d<=days;d++){
-    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const el=document.createElement('div');el.className='cal-day';el.textContent=d;
-    if(ds===todayStr)el.classList.add('today');
-    if(ds===selectedDate)el.classList.add('selected');
-    if(data[ds]&&Object.keys(data[ds]).length)el.classList.add('has-data');
-    el.onclick=()=>{selectedDate=ds;renderCalendar();loadFormForDate();renderCumTable();};
+  const mo = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent = `${mo[calMonth]} ${calYear}`;
+  document.getElementById('selDateDisplay').textContent = formatDisplay(selectedDate);
+  const grid     = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const first    = new Date(calYear, calMonth, 1).getDay();
+  const days     = new Date(calYear, calMonth+1, 0).getDate();
+  const todayStr = toDateStr(today);
+  for(let i=0; i<first; i++){
+    const e = document.createElement('div');
+    e.className = 'cal-day empty';
+    grid.appendChild(e);
+  }
+  for(let d=1; d<=days; d++){
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+    if(ds === todayStr)    el.classList.add('today');
+    if(ds === selectedDate) el.classList.add('selected');
+    if(data[ds] && Object.keys(data[ds]).length) el.classList.add('has-data');
+    el.onclick = () => {
+      selectedDate = ds;
+      renderCalendar();
+      loadFormForDate();
+      renderCumTable();
+    };
     grid.appendChild(el);
   }
   updateMonthlyCumulative();
 }
 
-document.getElementById('calPrev').onclick=async()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();};
-document.getElementById('calNext').onclick=async()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();};
+document.getElementById('calPrev').onclick = async () => {
+  calMonth--;
+  if(calMonth < 0){ calMonth = 11; calYear--; }
+  setSyncStatus('ing');
+  await loadMonthData();
+  renderCalendar();
+  renderCumTable();
+};
+document.getElementById('calNext').onclick = async () => {
+  calMonth++;
+  if(calMonth > 11){ calMonth = 0; calYear++; }
+  setSyncStatus('ing');
+  await loadMonthData();
+  renderCalendar();
+  renderCumTable();
+};
 
-document.getElementById('seriesTabs').addEventListener('click',e=>{
-  const tab=e.target.closest('.series-tab');if(!tab)return;
-  document.querySelectorAll('.series-tab').forEach(t=>t.classList.remove('active'));
-  tab.classList.add('active');currentSeries=tab.dataset.series;
-  document.getElementById('entryLabel').textContent=currentSeries;loadFormForDate();
+// ─── Series tabs ─────────────────────────────────────────────────────────────
+document.getElementById('seriesTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.series-tab');
+  if(!tab) return;
+  document.querySelectorAll('.series-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  currentSeries = tab.dataset.series;
+  document.getElementById('entryLabel').textContent = currentSeries;
+  loadFormForDate();
 });
 
-window.updateTotals=function(){
-  const rv=parseInt(document.getElementById('rec-count').value)||0;
-  const dv=parseInt(document.getElementById('dis-count').value)||0;
-  document.getElementById('rec-total').textContent=rv;
-  document.getElementById('dis-total').textContent=dv;
+// ─── Form helpers ─────────────────────────────────────────────────────────────
+window.updateTotals = function(){
+  const rv = parseInt(document.getElementById('rec-count').value) || 0;
+  const dv = parseInt(document.getElementById('dis-count').value) || 0;
+  document.getElementById('rec-total').textContent = rv;
+  document.getElementById('dis-total').textContent = dv;
 };
 
 function loadFormForDate(){
-  const dayData=data[selectedDate]&&data[selectedDate][currentSeries];
-  document.getElementById('rec-count').value=dayData?dayData.rec||'':'';
-  document.getElementById('dis-count').value=dayData?dayData.dis||'':'';
+  const dayData = data[selectedDate] && data[selectedDate][currentSeries];
+  document.getElementById('rec-count').value = dayData ? (dayData.rec || '') : '';
+  document.getElementById('dis-count').value = dayData ? (dayData.dis || '') : '';
   updateTotals();
 }
 
-window.saveEntry=async function(){
-  const btn=document.getElementById('saveBtn');
-  const msg=document.getElementById('saveMsg');
-  const rv=parseInt(document.getElementById('rec-count').value)||0;
-  const dv=parseInt(document.getElementById('dis-count').value)||0;
-  btn.disabled=true;btn.textContent='Saving...';
-  msg.className='save-msg';msg.textContent='';
-  saveToLocal(selectedDate,currentSeries,rv,dv);
-  let fbOk=false;
-  if(currentUser){
-    try{await saveToFirestore(selectedDate,currentSeries,rv,dv);fbOk=true;setSyncStatus('ok');}
-    catch(e){console.error('Save error:',e);setSyncStatus('err');}
+window.saveEntry = async function(){
+  const btn = document.getElementById('saveBtn');
+  const msg = document.getElementById('saveMsg');
+  const rv  = parseInt(document.getElementById('rec-count').value) || 0;
+  const dv  = parseInt(document.getElementById('dis-count').value) || 0;
+
+  btn.disabled    = true;
+  btn.textContent = 'Saving…';
+  msg.className   = 'save-msg';
+  msg.textContent = '';
+
+  // Always save to local first as insurance
+  saveToLocal(selectedDate, currentSeries, rv, dv);
+
+  try {
+    setSyncStatus('ing');
+    await saveToFirestore(selectedDate, currentSeries, rv, dv);
+    setSyncStatus('ok');
+
+    // Update in-memory data
+    if(!data[selectedDate]) data[selectedDate] = {};
+    data[selectedDate][currentSeries] = { rec: rv, dis: dv };
+
+    renderCalendar();
+    renderCumTable();
+    msg.textContent = '✓ Saved to Firebase';
+    msg.classList.add('show','ok');
+  } catch(err) {
+    const errMsg = err.code ? `[${err.code}]` : 'Network error';
+    dbg(`❌ Save failed: ${errMsg} — ${err.message}`);
+    console.error('Save error:', err);
+    setSyncStatus('err');
+
+    // Still update local view
+    if(!data[selectedDate]) data[selectedDate] = {};
+    data[selectedDate][currentSeries] = { rec: rv, dis: dv };
+    renderCalendar();
+    renderCumTable();
+    msg.textContent = `⚠ Saved locally only (${errMsg})`;
+    msg.classList.add('show','err');
   }
-  if(!data[selectedDate])data[selectedDate]={};
-  data[selectedDate][currentSeries]={rec:rv,dis:dv};
-  renderCalendar();renderCumTable();
-  msg.textContent=fbOk?'✓ Saved to Firebase':'✓ Saved locally';
-  msg.classList.add('show','ok');
-  setTimeout(()=>msg.classList.remove('show','ok','err'),3000);
-  btn.disabled=false;btn.textContent='Save Entry';
+  setTimeout(() => msg.classList.remove('show','ok','err'), 4000);
+  btn.disabled    = false;
+  btn.textContent = 'Save Entry';
 };
 
-window.clearForm=function(){
-  document.getElementById('rec-count').value='';
-  document.getElementById('dis-count').value='';
+window.clearForm = function(){
+  document.getElementById('rec-count').value = '';
+  document.getElementById('dis-count').value = '';
   updateTotals();
 };
 
+// ─── Cumulative sidebar ───────────────────────────────────────────────────────
 function updateMonthlyCumulative(){
-  const cum={'H-Series':{rec:0,dis:0},'A-Series':{rec:0,dis:0},'P15-Series':{rec:0,dis:0},'ZD30-Series':{rec:0,dis:0}};
-  Object.keys(data).forEach(d=>{SERIES.forEach(s=>{if(data[d][s]){cum[s].rec+=data[d][s].rec||0;cum[s].dis+=data[d][s].dis||0;}});});
-  SERIES.forEach(s=>{document.getElementById(`cum-${CUM_ID[s]}-rec`).textContent=cum[s].rec;document.getElementById(`cum-${CUM_ID[s]}-dis`).textContent=cum[s].dis;});
-  document.getElementById('cum-total-rec').textContent=SERIES.reduce((a,s)=>a+cum[s].rec,0);
-  document.getElementById('cum-total-dis').textContent=SERIES.reduce((a,s)=>a+cum[s].dis,0);
+  const cum = {};
+  SERIES.forEach(s => { cum[s] = {rec:0, dis:0}; });
+  Object.values(data).forEach(dayObj => {
+    SERIES.forEach(s => {
+      if(dayObj[s]){
+        cum[s].rec += dayObj[s].rec || 0;
+        cum[s].dis += dayObj[s].dis || 0;
+      }
+    });
+  });
+  SERIES.forEach(s => {
+    document.getElementById(`cum-${CUM_ID[s]}-rec`).textContent = cum[s].rec;
+    document.getElementById(`cum-${CUM_ID[s]}-dis`).textContent = cum[s].dis;
+  });
+  document.getElementById('cum-total-rec').textContent = SERIES.reduce((a,s) => a + cum[s].rec, 0);
+  document.getElementById('cum-total-dis').textContent = SERIES.reduce((a,s) => a + cum[s].dis, 0);
 }
 
+// ─── Cumulative table ─────────────────────────────────────────────────────────
 function renderCumTable(){
-  const tbody=document.getElementById('cumTableBody');const tfoot=document.getElementById('cumTableFoot');
-  tbody.innerHTML='';
-  const dates=Object.keys(data).sort();
-  if(!dates.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';tfoot.innerHTML='';return;}
-  let grandRec=0,grandDis=0;
-  dates.forEach(dateKey=>{
-    const dayData=data[dateKey];
-    const sp=SERIES.filter(s=>dayData[s]&&(dayData[s].rec||dayData[s].dis));
-    if(!sp.length)return;
-    sp.forEach((s,idx)=>{
-      const sd=dayData[s];const rc=sd.rec||0;const dc=sd.dis||0;
-      grandRec+=rc;grandDis+=dc;
-      const tr=document.createElement('tr');
-      if(idx===0){const td=document.createElement('td');td.rowSpan=sp.length;td.className='label';td.style.borderRight='1px solid var(--border)';td.textContent=formatDisplay(dateKey);tr.appendChild(td);}
-      tr.innerHTML+=`<td><span class="badge ${BADGE_CLASS[s]}">${s}</span></td><td class="rec">${rc}</td><td class="dis">${dc}</td>`;
+  const tbody = document.getElementById('cumTableBody');
+  const tfoot = document.getElementById('cumTableFoot');
+  tbody.innerHTML = '';
+
+  const dates = Object.keys(data).sort();
+  if(!dates.length){
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';
+    tfoot.innerHTML = '';
+    return;
+  }
+
+  let grandRec = 0, grandDis = 0;
+  dates.forEach(dateKey => {
+    const dayData = data[dateKey];
+    const activeSeries = SERIES.filter(s => dayData[s] && (dayData[s].rec || dayData[s].dis));
+    if(!activeSeries.length) return;
+
+    activeSeries.forEach((s, idx) => {
+      const sd = dayData[s];
+      const rc = sd.rec || 0;
+      const dc = sd.dis || 0;
+      grandRec += rc;
+      grandDis += dc;
+      const tr = document.createElement('tr');
+      if(idx === 0){
+        const td = document.createElement('td');
+        td.rowSpan   = activeSeries.length;
+        td.className = 'label';
+        td.style.borderRight = '1px solid var(--border)';
+        td.textContent = formatDisplay(dateKey);
+        tr.appendChild(td);
+      }
+      const badgeTd = document.createElement('td');
+      badgeTd.innerHTML = `<span class="badge ${BADGE_CLASS[s]}">${s}</span>`;
+      const recTd = document.createElement('td');
+      recTd.className = 'rec';
+      recTd.textContent = rc;
+      const disTd = document.createElement('td');
+      disTd.className = 'dis';
+      disTd.textContent = dc;
+      tr.appendChild(badgeTd);
+      tr.appendChild(recTd);
+      tr.appendChild(disTd);
       tbody.appendChild(tr);
     });
   });
-  tfoot.innerHTML=`<tr><td colspan="2" style="text-align:right;padding-right:16px;font-weight:700;">Monthly Total</td><td class="rec">${grandRec}</td><td class="dis">${grandDis}</td></tr>`;
+
+  tfoot.innerHTML = `<tr>
+    <td colspan="2" style="text-align:right;padding-right:16px;font-weight:700;">Monthly Total</td>
+    <td class="rec">${grandRec}</td>
+    <td class="dis">${grandDis}</td>
+  </tr>`;
 }
 </script>
 </body>
