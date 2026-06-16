@@ -19,7 +19,7 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .sync-err{background:#fde8e8;color:var(--warn);}
 .sync-ing{background:#fef0d6;color:var(--p15-series);}
 .layout{display:flex;flex:1;background:#fff;}
-.left-panel{width:268px;min-width:268px;background:#fff;border-right:1.5px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
+.left-panel{width:260px;min-width:260px;background:#fff;border-right:1.5px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
 .calendar-widget{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;}
 .cal-header{background:var(--accent);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
 .cal-title{font-weight:700;font-size:0.95rem;color:#fff;}
@@ -39,10 +39,8 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .selected-date-display{background:var(--faint);border:1.5px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
 .sel-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;}
 .sel-date{font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:700;color:var(--accent2);margin-top:4px;}
-/* Sidebar summary boxes */
 .summary-box{border:1.5px solid var(--border);border-radius:10px;padding:14px;background:#fff;}
-.summary-box h3{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
-.summary-box h3 .year-tag{font-size:0.68rem;background:var(--faint);border:1px solid var(--border);border-radius:4px;padding:2px 7px;color:var(--accent);font-weight:700;letter-spacing:0;}
+.summary-box h3{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:10px;}
 .summary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.82rem;}
 .summary-row:last-child{border-bottom:none;}
 .stype{display:flex;align-items:center;gap:6px;}
@@ -51,7 +49,6 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .svals span{font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;}
 .rec{color:var(--accent2);}
 .dis{color:var(--warn);}
-/* Main */
 .main{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:22px;background:#fff;}
 .section-title{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;font-weight:600;}
 .section-title::after{content:'';flex:1;height:1.5px;background:var(--border);}
@@ -63,11 +60,6 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .series-tab[data-series="A-Series"].active{background:var(--a-series);}
 .series-tab[data-series="P15-Series"].active{background:var(--p15-series);}
 .series-tab[data-series="ZD30-Series"].active{background:var(--zd30-series);}
-/* View toggle */
-.view-toggle{display:flex;background:var(--faint);border:1.5px solid var(--border);border-radius:8px;padding:3px;gap:3px;width:fit-content;}
-.view-btn{padding:7px 22px;border-radius:6px;border:none;background:transparent;font-size:0.88rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'Inter',sans-serif;}
-.view-btn.active{background:#fff;color:var(--accent);box-shadow:0 1px 4px rgba(79,124,255,0.13);border:1px solid var(--border);}
-/* Entry cards */
 .entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 .entry-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
 .entry-card-header{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--border);}
@@ -87,17 +79,18 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .entry-total{background:var(--faint);border:1px solid var(--border);border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;}
 .entry-total .t-label{font-size:0.8rem;color:var(--muted);font-weight:500;}
 .entry-total .total-val{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;}
-.save-bar{display:flex;gap:12px;align-items:center;}
+.save-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 .btn-save{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 32px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
 .btn-save:hover{opacity:0.88;}
 .btn-save:disabled{opacity:0.5;cursor:not-allowed;}
 .btn-clear{background:#fff;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;padding:11px 22px;font-size:0.92rem;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color 0.15s,color 0.15s;}
 .btn-clear:hover{border-color:var(--warn);color:var(--warn);}
+.btn-excel{background:#1d6f42;color:#fff;border:none;border-radius:8px;padding:11px 22px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;display:flex;align-items:center;gap:6px;}
+.btn-excel:hover{opacity:0.88;}
 .save-msg{font-size:0.85rem;font-weight:600;opacity:0;transition:opacity 0.3s;}
 .save-msg.show{opacity:1;}
 .save-msg.ok{color:var(--accent2);}
 .save-msg.err{color:var(--warn);}
-/* Tables */
 .cum-table-wrap{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
 .cum-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
 .cum-table th{background:var(--faint);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-size:0.7rem;padding:11px 14px;text-align:left;border-bottom:1.5px solid var(--border);}
@@ -106,38 +99,30 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 .cum-table tr:hover td{background:#fafbff;}
 .cum-table td.rec{color:var(--accent2);font-family:'JetBrains Mono',monospace;font-weight:700;}
 .cum-table td.dis{color:var(--warn);font-family:'JetBrains Mono',monospace;font-weight:700;}
-.cum-table td.net-pos{color:var(--accent2);font-family:'JetBrains Mono',monospace;font-weight:700;}
-.cum-table td.net-neg{color:var(--warn);font-family:'JetBrains Mono',monospace;font-weight:700;}
 .cum-table td.label{font-family:'Inter',sans-serif;font-weight:600;}
 .cum-table tfoot td{font-weight:700;background:var(--faint);border-top:2px solid var(--border);}
-/* Year table extras */
-.cum-table tr.month-row-alt td{background:#fafbff;}
-.cum-table td.month-label{font-weight:700;color:var(--text);}
 .badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:0.72rem;font-weight:700;}
 .badge-h{background:#ebe9ff;color:var(--h-series);}
 .badge-a{background:#d8f5ed;color:var(--a-series);}
 .badge-p15{background:#fef0d6;color:var(--p15-series);}
 .badge-zd30{background:#fde8e8;color:var(--zd30-series);}
-/* Year view spinner */
-.year-loading{display:flex;align-items:center;gap:10px;padding:28px;color:var(--muted);font-size:0.9rem;}
-.mini-spinner{width:18px;height:18px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+/* Chart */
+.chart-wrap{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:20px;}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.chart-title{font-size:0.85rem;font-weight:700;color:var(--text);}
+.chart-legend{display:flex;gap:16px;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--muted);}
+.legend-dot{width:10px;height:3px;border-radius:2px;}
+.chart-series-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.chart-series-tab{padding:4px 12px;border-radius:5px;border:1.5px solid var(--border);background:#fff;color:var(--muted);font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.13s;}
+.chart-series-tab.active{color:#fff;border-color:transparent;background:var(--accent);}
+canvas#lineChart{width:100%!important;}
 /* Loading overlay */
 .loading-overlay{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px;}
 .spinner{width:36px;height:36px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
 .loading-text{font-size:0.95rem;color:var(--muted);font-weight:600;}
-/* Year nav */
-.year-nav-bar{display:flex;align-items:center;gap:12px;}
-.year-nav-btn{background:var(--faint);border:1.5px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background 0.13s;}
-.year-nav-btn:hover{background:var(--border);}
-.year-display{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent);min-width:48px;text-align:center;}
-/* Debug */
-.debug-bar{background:#1a1d27;color:#7a8099;font-family:'JetBrains Mono',monospace;font-size:0.72rem;padding:6px 16px;display:flex;align-items:center;gap:10px;border-top:1px solid #2a2d3a;}
-.debug-bar span{color:#4f7cff;}
-#debugMsg{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-/* Hidden helper */
-.hidden{display:none!important;}
 @keyframes spin{to{transform:rotate(360deg);}}
-@media(max-width:960px){.entry-grid{grid-template-columns:1fr;}.left-panel{width:230px;min-width:230px;}}
+@media(max-width:900px){.entry-grid{grid-template-columns:1fr;}.left-panel{width:220px;min-width:220px;}}
 @media(max-width:680px){.layout{flex-direction:column;}.left-panel{width:100%;border-right:none;border-bottom:1.5px solid var(--border);}.main{padding:16px;}}
 </style>
 </head>
@@ -145,19 +130,18 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">Connecting to Firebase…</div>
+  <div class="loading-text">Connecting to Firebase...</div>
 </div>
 
 <div class="header">
   <h1>Daily <span>Entry</span> Register</h1>
   <div class="header-right">
     <div class="header-date" id="headerDate">—</div>
-    <div class="sync-status sync-ing" id="syncStatus" title="Click to retry" onclick="retryLoad()">⟳ Connecting</div>
+    <div class="sync-status sync-ing" id="syncStatus" onclick="retryLoad()">⟳ Connecting</div>
   </div>
 </div>
 
 <div class="layout">
-  <!-- LEFT PANEL -->
   <div class="left-panel">
     <div class="calendar-widget">
       <div class="cal-header">
@@ -170,162 +154,123 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);min-height
         <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
-
     <div class="selected-date-display">
       <div class="sel-label">Selected Date</div>
       <div class="sel-date" id="selDateDisplay">—</div>
     </div>
-
-    <!-- MONTH CUMULATIVE -->
     <div class="summary-box">
       <h3>Month Cumulative</h3>
       <div class="summary-row" style="font-size:0.68rem;color:var(--muted);padding-bottom:4px;">
         <span>Series</span><div class="svals"><span class="rec">Rec</span><span class="dis">Dis</span></div>
       </div>
-      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--h-series)"></span>H</span><div class="svals"><span class="rec" id="cum-h-rec">0</span><span class="dis" id="cum-h-dis">0</span></div></div>
-      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--a-series)"></span>A</span><div class="svals"><span class="rec" id="cum-a-rec">0</span><span class="dis" id="cum-a-dis">0</span></div></div>
-      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--p15-series)"></span>P15</span><div class="svals"><span class="rec" id="cum-p15-rec">0</span><span class="dis" id="cum-p15-dis">0</span></div></div>
-      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--zd30-series)"></span>ZD30</span><div class="svals"><span class="rec" id="cum-zd30-rec">0</span><span class="dis" id="cum-zd30-dis">0</span></div></div>
+      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--h-series)"></span>H-Series</span><div class="svals"><span class="rec" id="cum-h-rec">0</span><span class="dis" id="cum-h-dis">0</span></div></div>
+      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--a-series)"></span>A-Series</span><div class="svals"><span class="rec" id="cum-a-rec">0</span><span class="dis" id="cum-a-dis">0</span></div></div>
+      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--p15-series)"></span>P15-Series</span><div class="svals"><span class="rec" id="cum-p15-rec">0</span><span class="dis" id="cum-p15-dis">0</span></div></div>
+      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--zd30-series)"></span>ZD30-Series</span><div class="svals"><span class="rec" id="cum-zd30-rec">0</span><span class="dis" id="cum-zd30-dis">0</span></div></div>
       <div class="summary-row" style="padding-top:6px;"><span style="font-weight:700;font-size:0.85rem;">TOTAL</span><div class="svals"><span class="rec" style="font-weight:700;" id="cum-total-rec">0</span><span class="dis" style="font-weight:700;" id="cum-total-dis">0</span></div></div>
-    </div>
-
-    <!-- YEAR CUMULATIVE SIDEBAR -->
-    <div class="summary-box">
-      <h3>Year Cumulative <span class="year-tag" id="sideYearTag">—</span></h3>
-      <div class="summary-row" style="font-size:0.68rem;color:var(--muted);padding-bottom:4px;">
-        <span>Series</span><div class="svals"><span class="rec">Rec</span><span class="dis">Dis</span></div>
-      </div>
-      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--h-series)"></span>H</span><div class="svals"><span class="rec" id="ycum-h-rec">—</span><span class="dis" id="ycum-h-dis">—</span></div></div>
-      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--a-series)"></span>A</span><div class="svals"><span class="rec" id="ycum-a-rec">—</span><span class="dis" id="ycum-a-dis">—</span></div></div>
-      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--p15-series)"></span>P15</span><div class="svals"><span class="rec" id="ycum-p15-rec">—</span><span class="dis" id="ycum-p15-dis">—</span></div></div>
-      <div class="summary-row"><span class="stype"><span class="dot" style="background:var(--zd30-series)"></span>ZD30</span><div class="svals"><span class="rec" id="ycum-zd30-rec">—</span><span class="dis" id="ycum-zd30-dis">—</span></div></div>
-      <div class="summary-row" style="padding-top:6px;"><span style="font-weight:700;font-size:0.85rem;">TOTAL</span><div class="svals"><span class="rec" style="font-weight:700;" id="ycum-total-rec">—</span><span class="dis" style="font-weight:700;" id="ycum-total-dis">—</span></div></div>
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
   <div class="main">
-
-    <!-- VIEW TOGGLE -->
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-      <div class="view-toggle">
-        <button class="view-btn active" id="viewMonthBtn" onclick="switchView('month')">📅 Monthly View</button>
-        <button class="view-btn" id="viewYearBtn" onclick="switchView('year')">📊 Yearly View</button>
-      </div>
-      <!-- Year nav shown only in yearly view -->
-      <div class="year-nav-bar hidden" id="yearNavBar">
-        <button class="year-nav-btn" onclick="changeYear(-1)">&#8249;</button>
-        <span class="year-display" id="yearDisplay">—</span>
-        <button class="year-nav-btn" onclick="changeYear(1)">&#8250;</button>
+    <div>
+      <div class="section-title">Series Type</div>
+      <div class="series-tabs" id="seriesTabs">
+        <button class="series-tab active" data-series="H-Series">H-Series</button>
+        <button class="series-tab" data-series="A-Series">A-Series</button>
+        <button class="series-tab" data-series="P15-Series">P15-Series</button>
+        <button class="series-tab" data-series="ZD30-Series">ZD30-Series</button>
       </div>
     </div>
 
-    <!-- ══════════ MONTHLY VIEW ══════════ -->
-    <div id="monthlyView">
-      <div>
-        <div class="section-title">Series Type</div>
-        <div class="series-tabs" id="seriesTabs">
-          <button class="series-tab active" data-series="H-Series">H-Series</button>
-          <button class="series-tab" data-series="A-Series">A-Series</button>
-          <button class="series-tab" data-series="P15-Series">P15-Series</button>
-          <button class="series-tab" data-series="ZD30-Series">ZD30-Series</button>
-        </div>
-      </div>
-
-      <div>
-        <div class="section-title">Daily Entry — <span id="entryLabel" style="color:var(--accent);text-transform:none;letter-spacing:0;">H-Series</span></div>
-        <div class="entry-grid">
-          <div class="entry-card">
-            <div class="entry-card-header received">
-              <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M4 7l4 4 4-4" stroke="#00a884" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="#00a884" stroke-width="1.8" stroke-linecap="round"/></svg>
-              <h2>RECEIVED</h2>
-            </div>
-            <div class="entry-card-body">
-              <div class="count-label">Enter Count</div>
-              <input class="count-input" id="rec-count" type="number" min="0" placeholder="0" oninput="updateTotals()">
-              <div class="count-hint">Total number of items received</div>
-              <div class="entry-total">
-                <span class="t-label">Total Received</span>
-                <span class="total-val rec" id="rec-total">0</span>
-              </div>
+    <div>
+      <div class="section-title">Daily Entry — <span id="entryLabel" style="color:var(--accent);text-transform:none;letter-spacing:0;">H-Series</span></div>
+      <div class="entry-grid">
+        <div class="entry-card">
+          <div class="entry-card-header received">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M4 7l4 4 4-4" stroke="#00a884" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="#00a884" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <h2>RECEIVED</h2>
+          </div>
+          <div class="entry-card-body">
+            <div class="count-label">Enter Count</div>
+            <input class="count-input" id="rec-count" type="number" min="0" placeholder="0" oninput="updateTotals()">
+            <div class="count-hint">Total number of items received</div>
+            <div class="entry-total">
+              <span class="t-label">Total Received</span>
+              <span class="total-val rec" id="rec-total">0</span>
             </div>
           </div>
-          <div class="entry-card">
-            <div class="entry-card-header dismantled">
-              <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#e03e3e" stroke-width="1.8" stroke-linecap="round"/></svg>
-              <h2>DISMANTLED</h2>
-            </div>
-            <div class="entry-card-body">
-              <div class="count-label">Enter Count</div>
-              <input class="count-input dis-input" id="dis-count" type="number" min="0" placeholder="0" oninput="updateTotals()">
-              <div class="count-hint">Total number of items dismantled</div>
-              <div class="entry-total">
-                <span class="t-label">Total Dismantled</span>
-                <span class="total-val dis" id="dis-total">0</span>
-              </div>
+        </div>
+        <div class="entry-card">
+          <div class="entry-card-header dismantled">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#e03e3e" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <h2>DISMANTLED</h2>
+          </div>
+          <div class="entry-card-body">
+            <div class="count-label">Enter Count</div>
+            <input class="count-input dis-input" id="dis-count" type="number" min="0" placeholder="0" oninput="updateTotals()">
+            <div class="count-hint">Total number of items dismantled</div>
+            <div class="entry-total">
+              <span class="t-label">Total Dismantled</span>
+              <span class="total-val dis" id="dis-total">0</span>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="save-bar">
-        <button class="btn-save" id="saveBtn" onclick="saveEntry()">Save Entry</button>
-        <button class="btn-clear" onclick="clearForm()">Clear</button>
-        <span class="save-msg" id="saveMsg"></span>
-      </div>
+    <div class="save-bar">
+      <button class="btn-save" id="saveBtn" onclick="saveEntry()">Save Entry</button>
+      <button class="btn-clear" onclick="clearForm()">Clear</button>
+      <button class="btn-excel" onclick="downloadExcel()">⬇ Excel</button>
+      <span class="save-msg" id="saveMsg"></span>
+    </div>
 
-      <div>
-        <div class="section-title">Monthly Cumulative Table</div>
-        <div class="cum-table-wrap">
-          <table class="cum-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Series</th>
-                <th class="rec">Received</th>
-                <th class="dis">Dismantled</th>
-              </tr>
-            </thead>
-            <tbody id="cumTableBody">
-              <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>
-            </tbody>
-            <tfoot id="cumTableFoot"></tfoot>
-          </table>
+    <!-- LINE CHART -->
+    <div class="chart-wrap">
+      <div class="chart-header">
+        <div class="chart-title">Monthly Trend</div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Received</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--warn)"></div>Dismantled</div>
         </div>
       </div>
-    </div><!-- end #monthlyView -->
-
-    <!-- ══════════ YEARLY VIEW ══════════ -->
-    <div id="yearlyView" class="hidden">
-      <div>
-        <div class="section-title">Year Summary — <span id="yearSectionLabel" style="color:var(--accent);text-transform:none;letter-spacing:0;">—</span></div>
-        <!-- 4 mini stat cards -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" id="yearStatCards">
-          <!-- rendered by JS -->
-        </div>
+      <div class="chart-series-tabs" id="chartSeriesTabs">
+        <button class="chart-series-tab active" data-series="All">All Series</button>
+        <button class="chart-series-tab" data-series="H-Series">H-Series</button>
+        <button class="chart-series-tab" data-series="A-Series">A-Series</button>
+        <button class="chart-series-tab" data-series="P15-Series">P15-Series</button>
+        <button class="chart-series-tab" data-series="ZD30-Series">ZD30-Series</button>
       </div>
+      <canvas id="lineChart" height="200"></canvas>
+    </div>
 
-      <div>
-        <div class="section-title">Month-wise Breakdown</div>
-        <div class="cum-table-wrap" id="yearTableWrap">
-          <div class="year-loading"><div class="mini-spinner"></div> Loading year data…</div>
-        </div>
+    <div>
+      <div class="section-title">Monthly Cumulative Table</div>
+      <div class="cum-table-wrap">
+        <table class="cum-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Series</th>
+              <th class="rec">Received</th>
+              <th class="dis">Dismantled</th>
+            </tr>
+          </thead>
+          <tbody id="cumTableBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>
+          </tbody>
+          <tfoot id="cumTableFoot"></tfoot>
+        </table>
       </div>
-    </div><!-- end #yearlyView -->
-
-  </div><!-- end .main -->
-</div><!-- end .layout -->
-
-<div class="debug-bar">
-  <span>Firebase:</span>
-  <span id="debugMsg">Initializing…</span>
+    </div>
+  </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import {
-  getFirestore, doc, setDoc, collection, query, where, getDocs
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyA_Ux13nkl7QiIbe5wQI5tOtHgQ2ZsslW8",
@@ -337,197 +282,80 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-const SHARED_UID  = 'recon-store-shared-user-001';
-const SERIES      = ['H-Series','A-Series','P15-Series','ZD30-Series'];
-const SERIES_COLORS = {'H-Series':'var(--h-series)','A-Series':'var(--a-series)','P15-Series':'var(--p15-series)','ZD30-Series':'var(--zd30-series)'};
+const db = getFirestore(app);
+const SHARED_UID = 'recon-store-shared-user-001';
+const SERIES = ['H-Series','A-Series','P15-Series','ZD30-Series'];
 const BADGE_CLASS = {'H-Series':'badge-h','A-Series':'badge-a','P15-Series':'badge-p15','ZD30-Series':'badge-zd30'};
-const CUM_ID      = {'H-Series':'h','A-Series':'a','P15-Series':'p15','ZD30-Series':'zd30'};
-const MONTHS      = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const MONTH_FULL  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CUM_ID = {'H-Series':'h','A-Series':'a','P15-Series':'p15','ZD30-Series':'zd30'};
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-// ── State ────────────────────────────────────────────────────────────────────
 let currentSeries = 'H-Series';
+let chartSeries = 'All';
 let calYear, calMonth, selectedDate;
-let data      = {};    // month-level: { "YYYY-MM-DD": { "H-Series": {rec,dis} } }
-let yearData  = {};    // year-level:  { "YYYY-MM-DD": { "H-Series": {rec,dis} } } for selected viewYear
-let viewYear;          // which year is shown in yearly view
-let currentView = 'month';
+let data = {};
+let lineChart = null;
 
 const today = new Date();
-calYear    = today.getFullYear();
-calMonth   = today.getMonth();
-viewYear   = calYear;
+calYear = today.getFullYear();
+calMonth = today.getMonth();
 selectedDate = toDateStr(today);
+document.getElementById('headerDate').textContent = today.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-document.getElementById('headerDate').textContent =
-  today.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function toDateStr(d){
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function formatDisplay(ds){
-  const[y,m,d]=ds.split('-');
-  return `${d} ${MONTHS[+m-1]} ${y}`;
-}
-function dbg(msg){ document.getElementById('debugMsg').textContent=msg; }
+function toDateStr(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function formatDisplay(ds){const[y,m,d]=ds.split('-');return `${d} ${MONTHS[+m-1]} ${y}`;}
 function setSyncStatus(state){
   const el=document.getElementById('syncStatus');
-  if(state==='ok'){el.className='sync-status sync-ok';el.textContent='✓ Firebase Synced';}
-  else if(state==='err'){el.className='sync-status sync-err';el.textContent='✗ Offline — click to retry';}
-  else{el.className='sync-status sync-ing';el.textContent='⟳ Syncing…';}
+  if(state==='ok'){el.className='sync-status sync-ok';el.textContent='✓ Firebase Connected';}
+  else if(state==='err'){el.className='sync-status sync-err';el.textContent='✗ Offline — click retry';}
+  else{el.className='sync-status sync-ing';el.textContent='⟳ Syncing...';}
 }
 
-// ── Boot ─────────────────────────────────────────────────────────────────────
 async function init(){
   setSyncStatus('ing');
-  dbg('Loading data from Firestore…');
   await loadMonthData();
-  renderCalendar();
-  loadFormForDate();
-  renderCumTable();
-  updateYearSidebar(); // show sidebar year totals on load
+  renderCalendar();loadFormForDate();renderCumTable();renderChart();
   document.getElementById('loadingOverlay').style.display='none';
 }
 init();
 
 window.retryLoad = async function(){
   setSyncStatus('ing');
-  dbg('Retrying…');
   await loadMonthData();
-  renderCalendar();
-  loadFormForDate();
-  renderCumTable();
-  if(currentView==='year') await loadAndRenderYear();
+  renderCalendar();loadFormForDate();renderCumTable();renderChart();
 };
 
-// ── Firestore: month ─────────────────────────────────────────────────────────
 async function loadMonthData(){
   const mk=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
   data={};
   try{
-    dbg(`Querying month ${mk}…`);
     const q=query(collection(db,'entries'),where('uid','==',SHARED_UID),where('month','==',mk));
     const snap=await getDocs(q);
-    snap.forEach(docSnap=>{
-      const e=docSnap.data();
-      if(!data[e.date]) data[e.date]={};
-      data[e.date][e.series]={rec:e.rec||0,dis:e.dis||0};
-    });
-    dbg(`Loaded ${snap.size} entries for ${mk}`);
+    snap.forEach(d=>{const e=d.data();if(!data[e.date])data[e.date]={};data[e.date][e.series]={rec:e.rec||0,dis:e.dis||0};});
     setSyncStatus('ok');
-  }catch(err){
-    dbg(`❌ Load failed: ${err.code||err.message}`);
-    console.error('Load error:',err);
-    setSyncStatus('err');
-    loadFromLocal(`${calYear}-${String(calMonth+1).padStart(2,'0')}`);
+  }catch(e){
+    console.error('Load error:',e);setSyncStatus('err');loadFromLocal();
   }
 }
 
-// ── Firestore: full year ─────────────────────────────────────────────────────
-async function loadYearData(yr){
-  yearData={};
-  dbg(`Loading all ${yr} data (12 months)…`);
-  try{
-    const q=query(collection(db,'entries'),where('uid','==',SHARED_UID),where('year','==',String(yr)));
-    const snap=await getDocs(q);
-    if(snap.size>0){
-      snap.forEach(docSnap=>{
-        const e=docSnap.data();
-        if(!yearData[e.date]) yearData[e.date]={};
-        yearData[e.date][e.series]={rec:e.rec||0,dis:e.dis||0};
-      });
-      dbg(`Year ${yr}: loaded ${snap.size} entries via year field`);
-    } else {
-      // Fallback: query all 12 months individually (for older data without year field)
-      dbg(`Year ${yr}: year field empty, querying 12 months…`);
-      const fetches = [];
-      for(let m=1;m<=12;m++){
-        const mk=`${yr}-${String(m).padStart(2,'0')}`;
-        fetches.push(getDocs(query(collection(db,'entries'),where('uid','==',SHARED_UID),where('month','==',mk))));
-      }
-      const results = await Promise.all(fetches);
-      let total=0;
-      results.forEach(snap=>{
-        snap.forEach(docSnap=>{
-          const e=docSnap.data();
-          if(!yearData[e.date]) yearData[e.date]={};
-          yearData[e.date][e.series]={rec:e.rec||0,dis:e.dis||0};
-          total++;
-        });
-      });
-      dbg(`Year ${yr}: loaded ${total} entries via month fallback`);
-    }
-    setSyncStatus('ok');
-  }catch(err){
-    dbg(`❌ Year load failed: ${err.code||err.message}`);
-    console.error('Year load error:',err);
-    setSyncStatus('err');
-  }
-  updateYearSidebar();
-}
-
-// ── Firestore: save ──────────────────────────────────────────────────────────
 async function saveToFirestore(dateStr,series,rec,dis){
-  const docId=`${SHARED_UID}_${dateStr}_${series.replace(/\s/g,'-')}`;
-  dbg(`Saving ${docId}…`);
-  const docRef=doc(db,'entries',docId);
-  await setDoc(docRef,{
-    uid:SHARED_UID,
-    date:dateStr,
-    month:dateStr.substring(0,7),
-    year:dateStr.substring(0,4),      // ← store year field for fast year queries
-    series,rec,dis,
-    updatedAt:new Date().toISOString()
-  });
-  dbg(`Saved ✓ ${docId}`);
+  const id=`${SHARED_UID}_${dateStr}_${series.replace(/\s/g,'-')}`;
+  await setDoc(doc(db,'entries',id),{uid:SHARED_UID,date:dateStr,month:dateStr.substring(0,7),year:dateStr.substring(0,4),series,rec,dis,updatedAt:new Date().toISOString()});
 }
 
-// ── localStorage fallback ────────────────────────────────────────────────────
-function loadFromLocal(mk){
+function loadFromLocal(){
+  const mk=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
   const local=JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
-  data={};
-  Object.keys(local).filter(k=>k.startsWith(mk)).forEach(k=>{data[k]=local[k];});
-  dbg(`Local fallback: ${Object.keys(data).length} day(s)`);
+  data={};Object.keys(local).filter(k=>k.startsWith(mk)).forEach(k=>{data[k]=local[k];});
 }
 function saveToLocal(dateStr,series,rec,dis){
   const local=JSON.parse(localStorage.getItem('dailyRegData2')||'{}');
-  if(!local[dateStr]) local[dateStr]={};
-  local[dateStr][series]={rec,dis};
+  if(!local[dateStr])local[dateStr]={};local[dateStr][series]={rec,dis};
   localStorage.setItem('dailyRegData2',JSON.stringify(local));
 }
 
-// ── View switch ──────────────────────────────────────────────────────────────
-window.switchView = async function(view){
-  currentView=view;
-  document.getElementById('viewMonthBtn').classList.toggle('active',view==='month');
-  document.getElementById('viewYearBtn').classList.toggle('active',view==='year');
-  document.getElementById('monthlyView').classList.toggle('hidden',view!=='month');
-  document.getElementById('yearlyView').classList.toggle('hidden',view!=='year');
-  document.getElementById('yearNavBar').classList.toggle('hidden',view!=='year');
-  if(view==='year') await loadAndRenderYear();
-};
-
-window.changeYear = async function(delta){
-  viewYear+=delta;
-  await loadAndRenderYear();
-};
-
-async function loadAndRenderYear(){
-  document.getElementById('yearDisplay').textContent=viewYear;
-  document.getElementById('yearSectionLabel').textContent=`${viewYear}`;
-  document.getElementById('yearTableWrap').innerHTML=
-    '<div class="year-loading"><div class="mini-spinner"></div> Loading '+viewYear+' data…</div>';
-  await loadYearData(viewYear);
-  renderYearTable();
-  renderYearStatCards();
-}
-
-// ── Calendar ──────────────────────────────────────────────────────────────────
 function renderCalendar(){
-  document.getElementById('calTitle').textContent=`${MONTH_FULL[calMonth]} ${calYear}`;
+  const mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent=`${mo[calMonth]} ${calYear}`;
   document.getElementById('selDateDisplay').textContent=formatDisplay(selectedDate);
   const grid=document.getElementById('calGrid');grid.innerHTML='';
   const first=new Date(calYear,calMonth,1).getDay();
@@ -537,44 +365,42 @@ function renderCalendar(){
   for(let d=1;d<=days;d++){
     const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const el=document.createElement('div');el.className='cal-day';el.textContent=d;
-    if(ds===todayStr) el.classList.add('today');
-    if(ds===selectedDate) el.classList.add('selected');
-    if(data[ds]&&Object.keys(data[ds]).length) el.classList.add('has-data');
+    if(ds===todayStr)el.classList.add('today');
+    if(ds===selectedDate)el.classList.add('selected');
+    if(data[ds]&&Object.keys(data[ds]).length)el.classList.add('has-data');
     el.onclick=()=>{selectedDate=ds;renderCalendar();loadFormForDate();renderCumTable();};
     grid.appendChild(el);
   }
   updateMonthlyCumulative();
 }
 
-document.getElementById('calPrev').onclick=async()=>{
-  calMonth--;if(calMonth<0){calMonth=11;calYear--;}
-  setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();
-};
-document.getElementById('calNext').onclick=async()=>{
-  calMonth++;if(calMonth>11){calMonth=0;calYear++;}
-  setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();
-};
+document.getElementById('calPrev').onclick=async()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();renderChart();};
+document.getElementById('calNext').onclick=async()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}setSyncStatus('ing');await loadMonthData();renderCalendar();renderCumTable();renderChart();};
 
-// ── Series tabs ───────────────────────────────────────────────────────────────
 document.getElementById('seriesTabs').addEventListener('click',e=>{
   const tab=e.target.closest('.series-tab');if(!tab)return;
   document.querySelectorAll('.series-tab').forEach(t=>t.classList.remove('active'));
   tab.classList.add('active');currentSeries=tab.dataset.series;
-  document.getElementById('entryLabel').textContent=currentSeries;
-  loadFormForDate();
+  document.getElementById('entryLabel').textContent=currentSeries;loadFormForDate();
 });
 
-// ── Form ──────────────────────────────────────────────────────────────────────
+document.getElementById('chartSeriesTabs').addEventListener('click',e=>{
+  const tab=e.target.closest('.chart-series-tab');if(!tab)return;
+  document.querySelectorAll('.chart-series-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');chartSeries=tab.dataset.series;renderChart();
+});
+
 window.updateTotals=function(){
   const rv=parseInt(document.getElementById('rec-count').value)||0;
   const dv=parseInt(document.getElementById('dis-count').value)||0;
   document.getElementById('rec-total').textContent=rv;
   document.getElementById('dis-total').textContent=dv;
 };
+
 function loadFormForDate(){
   const dayData=data[selectedDate]&&data[selectedDate][currentSeries];
-  document.getElementById('rec-count').value=dayData?(dayData.rec||''):'';
-  document.getElementById('dis-count').value=dayData?(dayData.dis||''):'';
+  document.getElementById('rec-count').value=dayData?dayData.rec||'':'';
+  document.getElementById('dis-count').value=dayData?dayData.dis||'':'';
   updateTotals();
 }
 
@@ -583,33 +409,25 @@ window.saveEntry=async function(){
   const msg=document.getElementById('saveMsg');
   const rv=parseInt(document.getElementById('rec-count').value)||0;
   const dv=parseInt(document.getElementById('dis-count').value)||0;
-  btn.disabled=true;btn.textContent='Saving…';
+  btn.disabled=true;btn.textContent='Saving...';
   msg.className='save-msg';msg.textContent='';
   saveToLocal(selectedDate,currentSeries,rv,dv);
   try{
     setSyncStatus('ing');
     await saveToFirestore(selectedDate,currentSeries,rv,dv);
     setSyncStatus('ok');
-    if(!data[selectedDate]) data[selectedDate]={};
+    if(!data[selectedDate])data[selectedDate]={};
     data[selectedDate][currentSeries]={rec:rv,dis:dv};
-    // Also update yearData in memory if same year
-    if(selectedDate.startsWith(String(viewYear))){
-      if(!yearData[selectedDate]) yearData[selectedDate]={};
-      yearData[selectedDate][currentSeries]={rec:rv,dis:dv};
-      updateYearSidebar();
-      if(currentView==='year'){renderYearTable();renderYearStatCards();}
-    }
-    renderCalendar();renderCumTable();
+    renderCalendar();renderCumTable();renderChart();
     msg.textContent='✓ Saved to Firebase';msg.classList.add('show','ok');
-  }catch(err){
-    dbg(`❌ Save failed: ${err.code||err.message}`);
-    console.error('Save error:',err);setSyncStatus('err');
-    if(!data[selectedDate]) data[selectedDate]={};
+  }catch(e){
+    console.error('Save error:',e);setSyncStatus('err');
+    if(!data[selectedDate])data[selectedDate]={};
     data[selectedDate][currentSeries]={rec:rv,dis:dv};
-    renderCalendar();renderCumTable();
-    msg.textContent=`⚠ Saved locally only [${err.code||'error'}]`;msg.classList.add('show','err');
+    renderCalendar();renderCumTable();renderChart();
+    msg.textContent='✓ Saved locally';msg.classList.add('show','ok');
   }
-  setTimeout(()=>msg.classList.remove('show','ok','err'),4000);
+  setTimeout(()=>msg.classList.remove('show','ok','err'),3000);
   btn.disabled=false;btn.textContent='Save Entry';
 };
 
@@ -619,194 +437,200 @@ window.clearForm=function(){
   updateTotals();
 };
 
-// ── Monthly cumulative sidebar ────────────────────────────────────────────────
 function updateMonthlyCumulative(){
   const cum={};SERIES.forEach(s=>{cum[s]={rec:0,dis:0};});
-  Object.values(data).forEach(dayObj=>{
-    SERIES.forEach(s=>{if(dayObj[s]){cum[s].rec+=dayObj[s].rec||0;cum[s].dis+=dayObj[s].dis||0;}});
-  });
-  SERIES.forEach(s=>{
-    document.getElementById(`cum-${CUM_ID[s]}-rec`).textContent=cum[s].rec;
-    document.getElementById(`cum-${CUM_ID[s]}-dis`).textContent=cum[s].dis;
-  });
+  Object.values(data).forEach(dayObj=>{SERIES.forEach(s=>{if(dayObj[s]){cum[s].rec+=dayObj[s].rec||0;cum[s].dis+=dayObj[s].dis||0;}});});
+  SERIES.forEach(s=>{document.getElementById(`cum-${CUM_ID[s]}-rec`).textContent=cum[s].rec;document.getElementById(`cum-${CUM_ID[s]}-dis`).textContent=cum[s].dis;});
   document.getElementById('cum-total-rec').textContent=SERIES.reduce((a,s)=>a+cum[s].rec,0);
   document.getElementById('cum-total-dis').textContent=SERIES.reduce((a,s)=>a+cum[s].dis,0);
 }
 
-// ── Year cumulative sidebar ───────────────────────────────────────────────────
-function updateYearSidebar(){
-  document.getElementById('sideYearTag').textContent=viewYear;
-  document.getElementById('yearDisplay').textContent=viewYear;
-  const cum={};SERIES.forEach(s=>{cum[s]={rec:0,dis:0};});
-  Object.values(yearData).forEach(dayObj=>{
-    SERIES.forEach(s=>{if(dayObj[s]){cum[s].rec+=dayObj[s].rec||0;cum[s].dis+=dayObj[s].dis||0;}});
-  });
-  SERIES.forEach(s=>{
-    document.getElementById(`ycum-${CUM_ID[s]}-rec`).textContent=cum[s].rec;
-    document.getElementById(`ycum-${CUM_ID[s]}-dis`).textContent=cum[s].dis;
-  });
-  document.getElementById('ycum-total-rec').textContent=SERIES.reduce((a,s)=>a+cum[s].rec,0);
-  document.getElementById('ycum-total-dis').textContent=SERIES.reduce((a,s)=>a+cum[s].dis,0);
-}
-
-// ── Monthly cumulative table ──────────────────────────────────────────────────
 function renderCumTable(){
-  const tbody=document.getElementById('cumTableBody');
-  const tfoot=document.getElementById('cumTableFoot');
+  const tbody=document.getElementById('cumTableBody');const tfoot=document.getElementById('cumTableFoot');
   tbody.innerHTML='';
   const dates=Object.keys(data).sort();
-  if(!dates.length){
-    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';
-    tfoot.innerHTML='';return;
-  }
+  if(!dates.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No entries yet for this month.</td></tr>';tfoot.innerHTML='';return;}
   let grandRec=0,grandDis=0;
   dates.forEach(dateKey=>{
     const dayData=data[dateKey];
-    const active=SERIES.filter(s=>dayData[s]&&(dayData[s].rec||dayData[s].dis));
-    if(!active.length) return;
-    active.forEach((s,idx)=>{
+    const sp=SERIES.filter(s=>dayData[s]&&(dayData[s].rec||dayData[s].dis));
+    if(!sp.length)return;
+    sp.forEach((s,idx)=>{
       const sd=dayData[s];const rc=sd.rec||0;const dc=sd.dis||0;
       grandRec+=rc;grandDis+=dc;
       const tr=document.createElement('tr');
-      if(idx===0){
-        const td=document.createElement('td');td.rowSpan=active.length;
-        td.className='label';td.style.borderRight='1px solid var(--border)';
-        td.textContent=formatDisplay(dateKey);tr.appendChild(td);
-      }
-      const b=document.createElement('td');b.innerHTML=`<span class="badge ${BADGE_CLASS[s]}">${s}</span>`;
-      const r=document.createElement('td');r.className='rec';r.textContent=rc;
-      const d=document.createElement('td');d.className='dis';d.textContent=dc;
-      tr.appendChild(b);tr.appendChild(r);tr.appendChild(d);
+      if(idx===0){const td=document.createElement('td');td.rowSpan=sp.length;td.className='label';td.style.borderRight='1px solid var(--border)';td.textContent=formatDisplay(dateKey);tr.appendChild(td);}
+      tr.innerHTML+=`<td><span class="badge ${BADGE_CLASS[s]}">${s}</span></td><td class="rec">${rc}</td><td class="dis">${dc}</td>`;
       tbody.appendChild(tr);
     });
   });
   tfoot.innerHTML=`<tr><td colspan="2" style="text-align:right;padding-right:16px;font-weight:700;">Monthly Total</td><td class="rec">${grandRec}</td><td class="dis">${grandDis}</td></tr>`;
 }
 
-// ── Year stat cards ───────────────────────────────────────────────────────────
-function renderYearStatCards(){
-  const cum={};SERIES.forEach(s=>{cum[s]={rec:0,dis:0};});
-  Object.values(yearData).forEach(dayObj=>{
-    SERIES.forEach(s=>{if(dayObj[s]){cum[s].rec+=dayObj[s].rec||0;cum[s].dis+=dayObj[s].dis||0;}});
-  });
-  const container=document.getElementById('yearStatCards');
-  container.innerHTML=SERIES.map(s=>{
-    const net=cum[s].rec-cum[s].dis;
-    const netClass=net>=0?'net-pos':'net-neg';
-    return `<div style="border:1.5px solid var(--border);border-radius:10px;padding:14px;background:#fff;border-top:3px solid ${SERIES_COLORS[s]};">
-      <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;">${s}</div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-        <span style="font-size:0.75rem;color:var(--muted);">Received</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--accent2);font-size:0.9rem;">${cum[s].rec}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:0.75rem;color:var(--muted);">Dismantled</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--warn);font-size:0.9rem;">${cum[s].dis}</span>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:6px;display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:0.72rem;color:var(--muted);">Net</span>
-        <span class="${netClass}" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.9rem;">${net>=0?'+':''}${net}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
+// ── LINE CHART ────────────────────────────────────────────────────────────────
+function renderChart(){
+  const canvas=document.getElementById('lineChart');
+  const ctx=canvas.getContext('2d');
+  if(lineChart){lineChart.destroy();lineChart=null;}
 
-// ── Year month-wise table ─────────────────────────────────────────────────────
-function renderYearTable(){
-  // Aggregate per month per series
-  const monthAgg={};
-  for(let m=0;m<12;m++) monthAgg[m]={};
-  SERIES.forEach(s=>{ for(let m=0;m<12;m++) monthAgg[m][s]={rec:0,dis:0}; });
+  const dates=Object.keys(data).sort();
 
-  Object.keys(yearData).forEach(dateKey=>{
-    const mIdx=parseInt(dateKey.split('-')[1])-1;
-    const dayObj=yearData[dateKey];
-    SERIES.forEach(s=>{
-      if(dayObj[s]){
-        monthAgg[mIdx][s].rec+=dayObj[s].rec||0;
-        monthAgg[mIdx][s].dis+=dayObj[s].dis||0;
-      }
-    });
-  });
-
-  // Grand totals per series
-  const grandCum={};SERIES.forEach(s=>{grandCum[s]={rec:0,dis:0};});
-  for(let m=0;m<12;m++) SERIES.forEach(s=>{grandCum[s].rec+=monthAgg[m][s].rec;grandCum[s].dis+=monthAgg[m][s].dis;});
-  const grandRec=SERIES.reduce((a,s)=>a+grandCum[s].rec,0);
-  const grandDis=SERIES.reduce((a,s)=>a+grandCum[s].dis,0);
-
-  // Check which months have data
-  const hasAnyData=(m)=>SERIES.some(s=>monthAgg[m][s].rec||monthAgg[m][s].dis);
-
-  // Build table — each month = 4 series rows + 1 subtotal row
-  let html=`<table class="cum-table">
-    <thead>
-      <tr>
-        <th>Month</th>
-        <th>Series</th>
-        <th class="rec">Received</th>
-        <th class="dis">Dismantled</th>
-        <th style="color:var(--muted);font-size:0.68rem;">Net</th>
-      </tr>
-    </thead>
-    <tbody>`;
-
-  let anyRendered=false;
-  for(let m=0;m<12;m++){
-    if(!hasAnyData(m)) continue;
-    anyRendered=true;
-    const mRec=SERIES.reduce((a,s)=>a+monthAgg[m][s].rec,0);
-    const mDis=SERIES.reduce((a,s)=>a+monthAgg[m][s].dis,0);
-    const mNet=mRec-mDis;
-    const netCls=mNet>=0?'net-pos':'net-neg';
-    const rowspan=SERIES.filter(s=>monthAgg[m][s].rec||monthAgg[m][s].dis).length+1;
-    const activeSeries=SERIES.filter(s=>monthAgg[m][s].rec||monthAgg[m][s].dis);
-
-    html+=`<tr>
-      <td class="month-label" rowspan="${activeSeries.length+1}" style="border-right:1px solid var(--border);vertical-align:top;padding-top:12px;">
-        ${MONTHS[m]}<br><span style="font-size:0.7rem;color:var(--muted);font-weight:400;">${viewYear}</span>
-      </td>`;
-
-    activeSeries.forEach((s,idx)=>{
-      const rc=monthAgg[m][s].rec;const dc=monthAgg[m][s].dis;const net=rc-dc;
-      const nc=net>=0?'net-pos':'net-neg';
-      if(idx===0){
-        html+=`<td><span class="badge ${BADGE_CLASS[s]}">${s}</span></td>
-               <td class="rec">${rc}</td><td class="dis">${dc}</td>
-               <td class="${nc}">${net>=0?'+':''}${net}</td></tr>`;
-      } else {
-        html+=`<tr><td><span class="badge ${BADGE_CLASS[s]}">${s}</span></td>
-               <td class="rec">${rc}</td><td class="dis">${dc}</td>
-               <td class="${nc}">${net>=0?'+':''}${net}</td></tr>`;
-      }
-    });
-
-    // Month subtotal row
-    html+=`<tr style="background:#f8f9ff;">
-      <td style="font-weight:700;font-size:0.8rem;color:var(--muted);padding-left:20px;">Subtotal</td>
-      <td class="rec" style="font-weight:700;">${mRec}</td>
-      <td class="dis" style="font-weight:700;">${mDis}</td>
-      <td class="${netCls}" style="font-weight:700;">${mNet>=0?'+':''}${mNet}</td>
-    </tr>`;
+  // Always show all days of the month on X axis
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const allDays=[];
+  for(let d=1;d<=daysInMonth;d++){
+    allDays.push(`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
   }
 
-  if(!anyRendered){
-    html+=`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:32px;">No data for ${viewYear}.</td></tr>`;
-  }
+  const labels=allDays.map(d=>{
+    const day=parseInt(d.split('-')[2]);
+    return String(day);
+  });
 
-  html+=`</tbody>
-    <tfoot>
-      <tr>
-        <td colspan="2" style="text-align:right;padding-right:16px;font-weight:700;font-size:0.9rem;">Grand Total ${viewYear}</td>
-        <td class="rec">${grandRec}</td>
-        <td class="dis">${grandDis}</td>
-        <td class="${(grandRec-grandDis)>=0?'net-pos':'net-neg'}">${(grandRec-grandDis)>=0?'+':''}${grandRec-grandDis}</td>
-      </tr>
-    </tfoot>
-  </table>`;
+  const recData=allDays.map(d=>{
+    const dayObj=data[d]||{};
+    if(chartSeries==='All') return SERIES.reduce((a,s)=>a+(dayObj[s]?dayObj[s].rec||0:0),0);
+    return dayObj[chartSeries]?dayObj[chartSeries].rec||0:0;
+  });
+  const disData=allDays.map(d=>{
+    const dayObj=data[d]||{};
+    if(chartSeries==='All') return SERIES.reduce((a,s)=>a+(dayObj[s]?dayObj[s].dis||0:0),0);
+    return dayObj[chartSeries]?dayObj[chartSeries].dis||0:0;
+  });
 
-  document.getElementById('yearTableWrap').innerHTML=html;
+  const maxVal=Math.max(...recData,...disData,5);
+
+  lineChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'Received',
+          data:recData,
+          borderColor:'#00a884',
+          backgroundColor:'rgba(0,168,132,0.08)',
+          borderWidth:2.5,
+          pointBackgroundColor:recData.map(v=>v>0?'#00a884':'transparent'),
+          pointBorderColor:recData.map(v=>v>0?'#00a884':'transparent'),
+          pointRadius:recData.map(v=>v>0?5:0),
+          pointHoverRadius:7,
+          tension:0.3,
+          fill:true,
+          spanGaps:false
+        },
+        {
+          label:'Dismantled',
+          data:disData,
+          borderColor:'#e03e3e',
+          backgroundColor:'rgba(224,62,62,0.06)',
+          borderWidth:2.5,
+          pointBackgroundColor:disData.map(v=>v>0?'#e03e3e':'transparent'),
+          pointBorderColor:disData.map(v=>v>0?'#e03e3e':'transparent'),
+          pointRadius:disData.map(v=>v>0?5:0),
+          pointHoverRadius:7,
+          tension:0.3,
+          fill:true,
+          spanGaps:false
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#1a1d27',
+          titleColor:'#fff',
+          bodyColor:'#b0b7cc',
+          padding:12,
+          callbacks:{
+            title:items=>{
+              const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+              return `${items[0].label} ${mo[calMonth]} ${calYear}`;
+            },
+            label:item=>`${item.dataset.label}: ${item.raw}`
+          }
+        }
+      },
+      scales:{
+        x:{
+          title:{display:true,text:'Date',color:'#7a8099',font:{size:12,weight:'600'}},
+          grid:{color:'#f0f2f8',drawBorder:true},
+          border:{color:'#c8cfe0'},
+          ticks:{
+            color:'#7a8099',
+            font:{size:10},
+            maxTicksLimit:31,
+            maxRotation:0
+          }
+        },
+        y:{
+          title:{display:true,text:'Count',color:'#7a8099',font:{size:12,weight:'600'}},
+          grid:{color:'#f0f2f8',drawBorder:true},
+          border:{color:'#c8cfe0'},
+          ticks:{color:'#7a8099',font:{size:11},stepSize:1},
+          beginAtZero:true,
+          min:0,
+          suggestedMax:maxVal+2
+        }
+      }
+    }
+  });
 }
+
+// ── EXCEL DOWNLOAD ────────────────────────────────────────────────────────────
+window.downloadExcel=function(){
+  const mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthName=`${mo[calMonth]} ${calYear}`;
+  const dates=Object.keys(data).sort();
+
+  // Header row — one row per date, all series in columns
+  const header=[
+    'Date',
+    'H-Series Received','H-Series Dismantled',
+    'A-Series Received','A-Series Dismantled',
+    'P15-Series Received','P15-Series Dismantled',
+    'ZD30-Series Received','ZD30-Series Dismantled',
+    'Total Received','Total Dismantled'
+  ];
+  const rows=[header];
+
+  let grandRec=0, grandDis=0;
+  dates.forEach(dateKey=>{
+    const dayData=data[dateKey]||{};
+    const hRec=dayData['H-Series']?dayData['H-Series'].rec||0:0;
+    const hDis=dayData['H-Series']?dayData['H-Series'].dis||0:0;
+    const aRec=dayData['A-Series']?dayData['A-Series'].rec||0:0;
+    const aDis=dayData['A-Series']?dayData['A-Series'].dis||0:0;
+    const pRec=dayData['P15-Series']?dayData['P15-Series'].rec||0:0;
+    const pDis=dayData['P15-Series']?dayData['P15-Series'].dis||0:0;
+    const zRec=dayData['ZD30-Series']?dayData['ZD30-Series'].rec||0:0;
+    const zDis=dayData['ZD30-Series']?dayData['ZD30-Series'].dis||0:0;
+    const tRec=hRec+aRec+pRec+zRec;
+    const tDis=hDis+aDis+pDis+zDis;
+    grandRec+=tRec; grandDis+=tDis;
+    rows.push([formatDisplay(dateKey),hRec,hDis,aRec,aDis,pRec,pDis,zRec,zDis,tRec,tDis]);
+  });
+
+  // Total row
+  rows.push([]);
+  rows.push(['Monthly Total','','','','','','','','',grandRec,grandDis]);
+
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[
+    {wch:16},{wch:16},{wch:18},
+    {wch:16},{wch:18},
+    {wch:18},{wch:20},
+    {wch:18},{wch:20},
+    {wch:14},{wch:16}
+  ];
+  XLSX.utils.book_append_sheet(wb,ws,monthName);
+  XLSX.writeFile(wb,`DailyEntryRegister_${calYear}_${String(calMonth+1).padStart(2,'0')}.xlsx`);
+};
 </script>
 </body>
 </html>
